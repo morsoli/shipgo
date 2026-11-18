@@ -1,0 +1,35 @@
+{
+  "columns": [
+    {
+      "title": "In Progress",
+      "icon": "Loader",
+      "color": "#F59E0B",
+      "items": []
+    },
+    {
+      "title": "Later",
+      "icon": "Calendar",
+      "color": "#60A5FA",
+      "items": [
+        { "title": "Affiliate attribution", "description": "Integrate affiliate platforms and attribute registrations, payments, and commissions." },
+        { "title": "Analytics and performance expansion", "description": "Add more product analytics, traffic measurement, and frontend performance providers." },
+        { "title": "Advanced data tables", "description": "Add combined filters, multi-column sorting, column controls, and bulk actions to admin lists." },
+        { "title": "Expanded documentation components", "description": "Add steps, tabs, file trees, code examples, and media embeds for richer documentation." }
+      ]
+    },
+    {
+      "title": "Shipped",
+      "icon": "Rocket",
+      "color": "#34D399",
+      "items": [
+        { "title": "Full-stack foundation and deployment", "description": "TanStack Start, Nitro, PostgreSQL, Drizzle, Docker, and health checks." },
+        { "title": "Authentication and accounts", "description": "Credentials, social login, email verification, password reset, profiles, security settings, and API keys." },
+        { "title": "Payments, plans, and credits", "description": "Stripe, Creem, subscriptions, lifetime plans, credit packages, customer portal, webhooks, and credit ledger." },
+        { "title": "Administration and user operations", "description": "Admin access, user search, bans, account management, notification preferences, and credit distribution." },
+        { "title": "Content, marketing, and localization", "description": "Landing pages, pricing, blog, docs, changelog, roadmap, search, legal pages, and bilingual routing." },
+        { "title": "Integrations and growth tools", "description": "Email, newsletter, contact form, waitlist, file uploads, CAPTCHA, support chat, and analytics scripts." },
+        { "title": "SEO and release safeguards", "description": "Metadata, canonical URLs, hreflang, sitemap, robots.txt, tests, and release checks." }
+      ]
+    }
+  ]
+}

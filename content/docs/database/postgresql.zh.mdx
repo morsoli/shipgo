@@ -1,0 +1,77 @@
+---
+title: PostgreSQL
+description: 使用 Docker Compose 或本机安装运行 PostgreSQL
+---
+
+PostgreSQL 是 ShipGo 的主数据库。认证和业务数据包含八张兼容敏感表：`user`、
+`session`、`account`、`verification`、`apikey`、`shipgo_billing_order`、
+`shipgo_credit_wallet` 与 `shipgo_credit_ledger`。
+
+## Docker Compose（推荐）
+
+仓库包含带有 PostgreSQL 服务的 `docker-compose.yaml`。这是获取本地数据库最快
+的方式：
+
+```bash
+docker compose up -d db
+docker compose ps
+```
+
+等待 `db` 服务显示为 `healthy`。默认连接串：
+
+```
+postgresql://postgres:shipgo_local_password@localhost:5432/shipgo
+```
+
+从宿主机执行迁移：
+
+```bash
+DATABASE_URL=postgresql://postgres:shipgo_local_password@localhost:5432/shipgo pnpm db:migrate
+```
+
+## 本机 PostgreSQL
+
+如果你更喜欢本地安装的 PostgreSQL 服务器：
+
+1. 安装 PostgreSQL 15 或更高版本。
+2. 为 ShipGo 创建数据库和用户。
+3. 在 `.env.local` 中设置本地连接串作为 `DATABASE_URL`。
+4. 执行 `pnpm db:migrate`。
+
+## 常用命令
+
+| 命令 | 用途 | 使用时机 |
+| --- | --- | --- |
+| `pnpm db:generate` | 根据 Schema 变化生成迁移 | 修改 `src/db/*.schema.ts` 后 |
+| `pnpm db:migrate` | 执行已提交的迁移 | 初始安装与每次部署 |
+| `pnpm db:push` | 直接推送 Schema | 仅用于可丢弃的本地实验 |
+| `pnpm db:studio` | 打开 Drizzle Studio | 查看本地开发数据 |
+| `pnpm db:check-compat` | 检查生产兼容性 | 发布前 |
+
+不要在生产执行破坏性迁移。`db:push` 只适合开发便利场景，不能用于生产。
+
+## Schema 文件
+
+| 文件 | 数据表 |
+| --- | --- |
+| `src/db/auth.schema.ts` | `user`、`session`、`account`、`verification`、`apikey` |
+| `src/db/app.schema.ts` | `shipgo_billing_order`、`shipgo_credit_wallet`、`shipgo_credit_ledger` |
+
+认证表需要符合 Better Auth 兼容要求。修改其字段前，应检查 Better Auth 迁移与
+ShipGo 兼容性检查。
+
+## 添加产品数据表
+
+1. 在合适的 `src/db/*.schema.ts` 文件中定义数据表。
+2. 从 `src/db/schema.ts` 导出。
+3. 在 `src/repositories` 添加 Repository 函数。
+4. 在 `src/services` 添加业务行为。
+5. 使用 `pnpm db:generate` 生成并人工检查迁移。
+6. 在可丢弃数据库执行迁移，然后运行测试。
+
+Schema 代码和生成的迁移文件必须一起提交。
+
+## 官方文档
+
+- [PostgreSQL 文档](https://www.postgresql.org/docs/)
+- [Drizzle ORM 文档](https://orm.drizzle.team/)

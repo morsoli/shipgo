@@ -1,0 +1,20 @@
+<svg width="800" height="520" viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="520" rx="24" fill="#F8FAFC"/>
+  <rect x="36" y="36" width="728" height="448" rx="18" fill="#0F172A" stroke="#1E293B" stroke-width="2"/>
+  <text x="72" y="92" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700">ShipGo Operations &amp; Release Gates</text>
+  <rect x="72" y="130" width="312" height="84" rx="12" fill="#1E293B" stroke="#334155"/>
+  <text x="96" y="166" fill="#38BDF8" font-family="ui-monospace, monospace" font-size="15" font-weight="600">GET /api/ping</text>
+  <text x="96" y="192" fill="#10B981" font-family="ui-monospace, monospace" font-size="13">200 OK • PostgreSQL Healthy</text>
+  <rect x="416" y="130" width="312" height="84" rx="12" fill="#1E293B" stroke="#334155"/>
+  <text x="440" y="166" fill="#38BDF8" font-family="ui-monospace, monospace" font-size="15" font-weight="600">pnpm db:check-compat</text>
+  <text x="440" y="192" fill="#10B981" font-family="ui-monospace, monospace" font-size="13">8 Tables • 24 Indexes Verified</text>
+  <rect x="72" y="238" width="312" height="84" rx="12" fill="#1E293B" stroke="#334155"/>
+  <text x="96" y="274" fill="#38BDF8" font-family="ui-monospace, monospace" font-size="15" font-weight="600">pnpm verify:release</text>
+  <text x="96" y="300" fill="#10B981" font-family="ui-monospace, monospace" font-size="13">Lint, Typecheck, Tests &amp; Build</text>
+  <rect x="416" y="238" width="312" height="84" rx="12" fill="#1E293B" stroke="#334155"/>
+  <text x="440" y="274" fill="#38BDF8" font-family="ui-monospace, monospace" font-size="15" font-weight="600">POST /api/cron/credits</text>
+  <text x="440" y="300" fill="#10B981" font-family="ui-monospace, monospace" font-size="13">Monthly Grant &amp; Expiration</text>
+  <rect x="72" y="346" width="656" height="96" rx="12" fill="#1E293B" stroke="#334155"/>
+  <text x="96" y="388" fill="#E2E8F0" font-family="ui-monospace, monospace" font-size="15">docker compose up -d db &amp;&amp; pnpm db:migrate &amp;&amp; pnpm build</text>
+  <text x="96" y="416" fill="#94A3B8" font-family="ui-monospace, monospace" font-size="13">Node.js 24 • Nitro Portable Server • Non-root Container</text>
+</svg>

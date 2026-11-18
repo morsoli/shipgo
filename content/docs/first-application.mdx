@@ -1,0 +1,227 @@
+---
+title: Build Your First Application
+description: Set up ShipGo locally, rebrand it, add a page and API endpoint, then verify
+icon: Rocket
+---
+
+This tutorial walks through setting up ShipGo locally and making a small
+end-to-end product called **Acme Tasks**. It teaches the normal ShipGo workflow
+without requiring an external provider.
+
+## Before you begin
+
+### Prerequisites
+
+- Node.js 24 and Corepack
+- pnpm 10, selected by the repository's `packageManager` field
+- A PostgreSQL database
+
+The database can be the Compose service, a locally installed server, or a hosted
+PostgreSQL provider such as Neon or Supabase.
+
+### Install dependencies
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+```
+
+Use `--frozen-lockfile` for a reproducible install. If you intentionally change
+dependencies, run `pnpm install` and commit the resulting `pnpm-lock.yaml`.
+
+### Create `.env.local`
+
+```bash
+cp .env.example .env.local
+```
+
+For a host-side development server, `DATABASE_URL` must use an address reachable
+from your machine. When using the included Compose database:
+
+```dotenv
+DATABASE_URL=postgresql://postgres:shipgo_local_password@localhost:5432/shipgo
+```
+
+Start only PostgreSQL:
+
+```bash
+docker compose up -d db
+```
+
+For hosted PostgreSQL, paste its connection URL instead. Prefer a pooled URL for
+the application and verify that your provider supports the migration operations
+you use.
+
+### Apply migrations
+
+```bash
+pnpm db:migrate
+```
+
+Migrations under `drizzle/` are the versioned history of the database. Run this
+command after pulling any change that adds a migration.
+
+### Start the development server
+
+```bash
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). The development server
+provides hot module replacement and TanStack development tooling. Confirm
+`/api/ping` reports a connected database.
+
+### Run the basic gates
+
+```bash
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+`typecheck` first compiles MDX and Intlayer content, then runs TypeScript.
+`build` generates `public/robots.txt` and creates the Node.js server bundle in
+`.output`.
+
+## 1. Change product metadata
+
+Open `src/config/site-config.ts` and change:
+
+```ts
+export const siteConfig = {
+  title: "Acme Tasks",
+  titleSuffix: "Finish focused work",
+  author: "Acme",
+  description: "A focused task application for small teams.",
+  // Keep the remaining configuration.
+}
+```
+
+This configuration feeds metadata and shared product UI. Replace logo and social
+preview assets under `public/` when you establish the final brand.
+
+## 2. Change the landing page copy
+
+Open `src/config/locale/landing.content.ts`. Keep both `en` and `zh` values for
+every translated field. Intlayer reports missing or malformed content during
+`pnpm content:build`.
+
+Do not place translated marketing copy directly in a React component. Keeping it
+in a dictionary allows the same component structure to render all enabled
+languages.
+
+## 3. Add a public page
+
+Create `src/routes/{-$locale}/_main/_landing/features.tsx`:
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router"
+
+export const Route = createFileRoute("/{-$locale}/_main/_landing/features")({
+  component: FeaturesPage,
+})
+
+function FeaturesPage() {
+  return (
+    <main className="mx-auto max-w-5xl px-6 py-20">
+      <h1 className="text-4xl font-semibold">Features</h1>
+      <p className="mt-4 text-muted-foreground">
+        Plan focused work, keep a clear history, and ship on time.
+      </p>
+    </main>
+  )
+}
+```
+
+The `_main` and `_landing` segments select layouts but do not appear in the URL.
+Visit `/features` and `/zh/features`.
+
+For a production page, move the text into an Intlayer dictionary before adding
+more languages.
+
+## 4. Add a public API endpoint
+
+Create `src/routes/api/product-info.ts`:
+
+```ts
+import { createFileRoute } from "@tanstack/react-router"
+import { siteConfig } from "@/config/site-config"
+import { Resp } from "@/shared/lib/tools/response"
+
+export const Route = createFileRoute("/api/product-info")({
+  server: {
+    handlers: {
+      GET: async () =>
+        Resp.success({
+          name: siteConfig.title,
+          features: siteConfig.features,
+        }),
+    },
+  },
+})
+```
+
+Verify it:
+
+```bash
+curl http://localhost:3000/api/product-info
+```
+
+Use `Resp.success` and `Resp.error` for application APIs that should follow
+ShipGo's common JSON envelope. Use a plain `Response` for non-JSON resources such
+as sitemap, Markdown, or webhook acknowledgements.
+
+## 5. Understand protected endpoints
+
+To require a signed-in user, add `apiAuthMiddleware` to a route:
+
+```ts
+import { apiAuthMiddleware } from "@/shared/middleware/auth.middleware"
+
+server: {
+  middleware: [apiAuthMiddleware],
+  handlers: {
+    GET: async ({ context }) =>
+      Resp.success({ userId: context.session.user.id }),
+  },
+}
+```
+
+Do not trust a `userId` sent by the browser. Read the authenticated identity from
+`context.session.user`.
+
+## 6. Verify before continuing
+
+```bash
+pnpm content:build
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+You have now changed shared configuration, localized content, a page route, and
+an API route. Next, choose the feature guide closest to your product:
+[authentication](/docs/authentication), [database](/docs/database), or
+[payments and credits](/docs/payments-and-credits).
+
+## Useful database commands
+
+| Command | Purpose | When to use |
+| --- | --- | --- |
+| `pnpm db:generate` | Generate a migration from schema changes | After editing `src/db/*.schema.ts` |
+| `pnpm db:migrate` | Apply committed migrations | Setup and every deployment |
+| `pnpm db:push` | Push schema directly | Disposable local experiments only |
+| `pnpm db:studio` | Open Drizzle Studio | Inspect local development data |
+| `pnpm db:check-compat` | Check expected production compatibility | Before release |
+
+Do not use `db:push` as a substitute for committed production migrations.
+
+## Environment loading
+
+Vite and Drizzle load `.env.local`. Browser-readable values must use the `VITE_`
+prefix and are embedded into client code; never put secrets in them. Server-only
+values are read from `process.env`.
+
+After changing a `VITE_` variable, restart the development server. After changing
+a server-only variable, restarting is also recommended because modules may cache
+provider instances.

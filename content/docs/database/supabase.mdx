@@ -1,0 +1,37 @@
+---
+title: Supabase
+description: Connect ShipGo to Supabase PostgreSQL
+---
+
+> This database provider is planned but not yet fully documented in ShipGo.
+
+## Overview
+
+Supabase provides managed PostgreSQL with a built-in connection pooler,
+authentication, storage, and real-time subscriptions. ShipGo can use Supabase
+PostgreSQL as its primary database while managing its own auth and business
+logic.
+
+## Planned setup
+
+1. Create a project in the [Supabase Dashboard](https://supabase.com/dashboard).
+2. Copy the **Database** connection string from project settings.
+3. Paste it into `.env.local` as `DATABASE_URL`.
+4. Run `pnpm db:migrate`.
+
+## Connection modes
+
+- **Direct connection**: for long-running Node.js processes.
+- **Connection pooler**: for serverless or high-concurrency workloads.
+- **SSL required**: Supabase enforces SSL for external connections.
+
+## Official documentation
+
+- [Supabase Docs](https://supabase.com/docs)
+- [Supabase Database](https://supabase.com/docs/guides/database)
+- [Supabase Connection Strings](https://supabase.com/docs/guides/database/connecting-to-postgres)
+
+## Notes
+
+ShipGo manages its own Better Auth tables. If you use Supabase Auth alongside
+ShipGo, keep the two auth systems isolated to avoid conflicts.

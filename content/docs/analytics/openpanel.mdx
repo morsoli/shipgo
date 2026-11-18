@@ -1,0 +1,29 @@
+---
+title: OpenPanel
+description: Add OpenPanel product analytics to ShipGo
+---
+
+OpenPanel provides product analytics focused on user behavior, feature adoption,
+and retention.
+
+## Configuration
+
+1. Create an account on [OpenPanel](https://openpanel.dev/).
+2. Create a project and copy the **Client ID**.
+3. Add it to `.env.local`:
+
+```dotenv
+VITE_OPENPANEL_CLIENT_ID=your-client-id
+```
+
+4. Restart the application.
+
+## What is tracked
+
+- User sessions and feature usage.
+- Custom events for product actions.
+- Cohort and retention analysis.
+
+## Official documentation
+
+- [OpenPanel Docs](https://openpanel.dev/docs)

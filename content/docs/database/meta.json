@@ -1,0 +1,10 @@
+{
+  "title": "Database",
+  "icon": "Database",
+  "pages": [
+    "index",
+    "postgresql",
+    "neon",
+    "supabase"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "title": "ShipGo 介绍",
+  "description": "构建并发布可用于生产环境的 TanStack 全栈应用",
+  "icon": "Ship",
+  "root": true,
+  "pages": [
+    "---开始使用---",
+    "index",
+    "first-application",
+    "project-structure",
+    "---自定义---",
+    "configuration",
+    "internationalization",
+    "content-and-seo",
+    "---核心功能---",
+    "authentication",
+    "database",
+    "payments-and-credits",
+    "integrations",
+    "analytics",
+    "---部署与运维---",
+    "deployment",
+    "operations",
+    "troubleshooting",
+    "---参考---",
+    "environment-variables",
+    "api-reference"
+  ]
+}

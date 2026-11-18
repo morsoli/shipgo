@@ -1,0 +1,13 @@
+{
+  "title": "Analytics",
+  "icon": "BarChart3",
+  "pages": [
+    "index",
+    "google-analytics",
+    "umami",
+    "plausible",
+    "openpanel",
+    "clarity",
+    "conversion-tracking"
+  ]
+}

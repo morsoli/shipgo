@@ -1,0 +1,99 @@
+---
+title: API 参考
+description: 公开、认证、管理员、Cron、内容与 Webhook 接口
+icon: Braces
+---
+
+ShipGo API Route 位于 `src/routes/api`。应用 JSON 接口通常通过 `Resp.success` 或 `Resp.error` 返回统一包装：
+
+```json
+{ "success": true, "data": {} }
+```
+
+所有输入都要校验，并在服务端执行访问控制。浏览器 UI 是否可见不是授权。
+
+## 公开接口
+
+| 方法 | 路径 | 输入 | 用途 |
+| --- | --- | --- | --- |
+| `GET` | `/api/ping` | 无 | 检查应用与数据库健康状态 |
+| `GET` | `/api/search` | `q`、`locale=en|zh` | 搜索本地化文档与博客 |
+| `POST` | `/api/contact` | 联系表单 JSON | 校验并投递联系消息 |
+| `POST` | `/api/newsletter/subscribe` | `{ "email": "..." }` | 订阅邮箱 |
+| `GET` | `/api/credit/packages` | 无 | 列出已配置可购买积分包 |
+| `GET/POST` | `/api/auth/*` | Better Auth 协议 | 认证 Handler |
+
+示例：
+
+```bash
+curl "http://localhost:3000/api/search?q=payment&locale=en"
+```
+
+## 感知会话的内容接口
+
+`GET /api/content/markdown` 接收 `type=docs|blog`、安全的 `slug` 和 `locale=en|zh`。匿名用户可读取公开内容；Premium 内容要求具有 Premium 权限的会话。
+
+```bash
+curl "http://localhost:3000/api/content/markdown?type=docs&slug=deployment/docker&locale=en"
+```
+
+## 认证接口
+
+以下 Route 要求有效 Better Auth Session Cookie。
+
+| 方法 | 路径 | 用途 |
+| --- | --- | --- |
+| `GET` | `/api/newsletter/status` | 读取当前用户订阅状态 |
+| `POST` | `/api/newsletter/unsubscribe` | 取消订阅当前用户邮箱 |
+| `POST` | `/api/file/upload` | 上传最大 5 MB 的 JPEG、PNG 或 WebP |
+| `POST` | `/api/payment/checkout` | 创建套餐结账 |
+| `POST` | `/api/payment/credit-checkout` | 为已配置积分包创建结账 |
+| `POST` | `/api/payment/portal` | 创建客户门户 Session |
+| `GET` | `/api/payment/status?sessionId=...` | 读取当前用户支付完成状态 |
+| `GET` | `/api/credit/history` | 读取当前用户分页积分历史 |
+
+上传接口使用 `multipart/form-data`，包含 `file`，并可选包含 `folder` 与 `isPublic`。
+
+## 管理员接口
+
+所有 `/api/admin/*` Route 都要求 `session.user.role === "admin"`。
+
+| 方法 | 路径 | 用途 |
+| --- | --- | --- |
+| `GET` | `/api/admin/users` | 搜索并分页列出用户 |
+| `GET` | `/api/admin/users/:userId` | 读取一个用户 |
+| `POST` | `/api/admin/users/:userId/ban` | 封禁用户 |
+| `DELETE` | `/api/admin/users/:userId/ban` | 解除封禁 |
+
+管理员演示模式可以把支持的写操作拒绝为只读。
+
+## Cron 接口
+
+`POST /api/cron/credits` 要求精确 Header：`Authorization: Basic <CRON_SECRET>`。
+
+```bash
+curl -X POST \
+  -H "Authorization: Basic $CRON_SECRET" \
+  https://example.com/api/cron/credits
+```
+
+该密钥应按密码管理，暴露后立即轮换。
+
+## Webhook
+
+| 方法 | 路径 | 签名 Header |
+| --- | --- | --- |
+| `POST` | `/api/webhooks/stripe` | `stripe-signature` |
+| `POST` | `/api/webhooks/creem` | `creem-signature` |
+
+Webhook Handler 必须使用原始请求 Body 验证签名。缺失或无效签名返回 `400`，可重试处理失败返回 `500`，已接受的重复事件返回 `200` 且不会重复发放。
+只有 `PAYMENT_PROVIDER` 所选 Provider 的端点会接收事件，另一个端点返回 `400`。
+
+## 添加接口
+
+1. 在 `src/routes/api` 下创建文件。
+2. 添加适当的认证或管理员 Middleware。
+3. 使用 Zod 校验 Params、Query 与 Body。
+4. 调用 Service，不要把业务逻辑或 SQL 放在 Route 中。
+5. 返回稳定响应和正确 HTTP 状态。
+6. 为校验、授权、成功与 Provider 失败添加测试。

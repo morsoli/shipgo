@@ -1,0 +1,66 @@
+---
+title: Integrations
+description: Connect email, newsletter, storage, notifications, analytics, and support
+icon: Plug
+---
+
+Provider adapters keep external services outside core business logic:
+
+- Resend sends transactional email and can manage newsletter audiences.
+- Beehiiv is available as an alternative newsletter provider.
+- S3-compatible storage handles authenticated avatar uploads.
+- Discord and Feishu receive best-effort business notifications.
+- Crisp, Google Analytics, Umami, Plausible, OpenPanel, PostHog, Clarity, and
+  other analytics scripts load only when configured.
+
+Missing optional integrations must not prevent application startup. Required
+production integrations are validated during release verification.
+
+## Operational behavior
+
+Email uses React Email templates. Preview templates with:
+
+```bash
+pnpm email:preview
+```
+
+Newsletter subscriptions support Resend Audiences and Beehiiv. Registration,
+waitlist, and notification settings use the same newsletter service.
+
+Avatar uploads require authentication and accept JPEG, PNG, or WebP through the
+configured S3-compatible storage endpoint.
+
+Discord and Feishu delivery failures are logged and never roll back payment or
+credit processing.
+
+## Integration contract
+
+External systems are isolated behind services and providers. Core product behavior should depend on a small internal interface, not a provider SDK. This makes provider replacement, testing, and failure handling explicit.
+
+| Class | Examples | Failure behavior |
+| --- | --- | --- |
+| Required | Database, selected payment provider, production transactional email | Fail validation or the requested operation |
+| Optional | Analytics, chat, notifications, newsletter | Log or hide the feature without taking down unrelated pages |
+
+## Transactional email and newsletter
+
+Templates live in `src/shared/components/email`. Before enabling verification, test verification and reset emails with a verified sender domain.
+
+`NEWSLETTER_PROVIDER` selects Resend Audiences or Beehiiv. Registration newsletter failure must not roll back account creation.
+
+## S3-compatible storage
+
+The authenticated upload API accepts JPEG, PNG, and WebP up to 5 MB. Files are content-hashed and deduplicated by key. Configure bucket credentials, endpoint, region, and public URL, then test both upload and public retrieval.
+
+## Analytics and support
+
+Analytics and Crisp browser integrations load only when their public identifiers exist. These identifiers are visible by design, but server API keys are not. PostHog uses `VITE_POSTHOG_KEY` and `VITE_POSTHOG_HOST`; leave either value empty to disable it. Verify consent and privacy obligations for the jurisdictions where the product operates.
+
+## Add a provider
+
+1. Define the smallest internal interface needed by the product.
+2. Implement the adapter outside routes and React components.
+3. Select it through typed configuration.
+4. Add environment validation and `.env.example` documentation.
+5. Test success, rejection, timeout, and duplicate delivery.
+6. Document setup and operational recovery.

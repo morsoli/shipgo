@@ -1,0 +1,31 @@
+---
+title: Umami
+description: Add Umami privacy-friendly analytics to ShipGo
+---
+
+Umami is a privacy-focused, open-source analytics platform that does not use
+cookies and does not track personal data.
+
+## Configuration
+
+1. Deploy Umami or use [Umami Cloud](https://cloud.umami.is/).
+2. Create a website and copy the **Website ID** and **Script URL**.
+3. Add them to `.env.local`:
+
+```dotenv
+VITE_UMAMI_WEBSITE_ID=your-website-id
+VITE_UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
+```
+
+4. Restart the application.
+
+## What is tracked
+
+- Page views without cookies.
+- Referrer and device information.
+- Custom events for feature usage.
+
+## Official documentation
+
+- [Umami Docs](https://umami.is/docs)
+- [Umami Cloud](https://cloud.umami.is/)

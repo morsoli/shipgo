@@ -1,0 +1,74 @@
+---
+title: Creem
+description: Configure Creem checkout, webhooks, and credit grants
+---
+
+Creem is an alternative payment provider in ShipGo.
+
+## Configuration
+
+1. Set `PAYMENT_PROVIDER=creem` in `.env.local`.
+2. Create products and prices in the Creem test environment.
+3. Write server-side configuration into `.env.local`.
+4. Keep `src/config/business-config.ts` amounts and billing periods consistent
+   (`src/config/payment-config.ts` derives its pricing model from it).
+5. Configure the Creem API key, webhook signing secret, and webhook URL.
+6. Complete a test checkout and confirm that local payment records update.
+
+### Required environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `CREEM_API_KEY` | Server-side API authentication |
+| `CREEM_WEBHOOK_SECRET` | Validate webhook signatures |
+
+## Payment processing flow
+
+The Creem flow follows the same pattern as Stripe:
+
+1. User requests checkout.
+2. ShipGo creates a checkout session with Creem.
+3. Creem presents a hosted checkout page.
+4. Creem sends a signed webhook to ShipGo.
+5. ShipGo updates the payment record and grants credits.
+6. User polls payment status from ShipGo.
+
+Signed webhooks are the source of truth. Browser redirects improve UX but must
+never be the sole authorization for granting credits or updating plan status.
+
+## Webhook endpoint
+
+Creem webhooks are received at:
+
+```
+POST /api/webhooks/creem
+```
+
+- Invalid signatures return `400`.
+- Retryable processing failures return `500`.
+- Duplicate events return `200` without granting credits again.
+
+Billing order external invoice IDs (`shipgo_billing_order.external_invoice_id`) are the idempotency boundary.
+
+## Credits and one-time payments
+
+Credit changes use transactions. Consumption is FIFO by expiration and creation
+time.
+
+- **Registration gift**: granted on first signup.
+- **Monthly refresh**: recurring free credits.
+- **Package purchases**: one-time credit packages bought through checkout.
+- **Subscription renewals**: credits granted on each renewal.
+- **Lifetime monthly grants**: recurring credits for lifetime plan holders.
+
+The cron endpoint `/api/cron/credits` requires Basic Auth using `CRON_SECRET`.
+Operators can also run `pnpm distribute-credits` manually.
+
+## Testing checklist
+
+- Complete subscription, lifetime, and credit package checkouts in test mode.
+- Replay the same webhook and confirm no duplicate credits.
+- Open the customer portal, cancel a test subscription, and return to ShipGo.
+- Confirm invalid signatures return `400`.
+- Confirm retryable failures return `500`.
+- Confirm users can see payment status and credit history.

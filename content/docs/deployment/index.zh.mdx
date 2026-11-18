@@ -1,0 +1,83 @@
+---
+title: 部署
+description: 使用 Node.js 与 Docker 构建和部署 ShipGo
+icon: Cloud
+index: true
+---
+
+ShipGo 构建为 Nitro Node.js Server：
+
+```bash
+pnpm build
+pnpm start
+```
+
+Docker 部署：
+
+```bash
+docker build --build-arg VITE_APP_URL=https://shipgo.example -t shipgo:release .
+docker run --rm -p 3000:3000 --env-file .env shipgo:release
+curl --fail http://localhost:3000/api/ping
+SMOKE_BASE_URL=http://localhost:3000 pnpm smoke:release
+```
+
+生产镜像采用多阶段构建，使用非 root 的 `node` 用户运行，并内置容器健康检查。运行时
+设置 `APP_URL=https://shipgo.example`，构建参数 `VITE_APP_URL` 使用相同值。
+
+## 发布
+
+1. 执行 `pnpm typecheck`、`pnpm test` 和 `pnpm build`。
+2. 在预发布环境测试 Stripe 和 Creem Webhook Fixture。
+3. 对生产数据库副本运行兼容检查。
+4. 备份生产环境并部署不可变镜像。
+5. 验证 `/api/ping`、登录、Billing，以及一次幂等 Webhook 回放。
+
+## 回滚
+
+将流量切回上一不可变镜像。由于 ShipGo 不要求破坏性 Schema 变更，上一版本应用可以
+复用同一数据库。再次发布前，请排查日志并核对 Webhook 事件。
+
+## 部署模型
+
+`pnpm build` 会在 `.output` 中创建可移植的 Nitro Node.js 服务，运行命令为：
+
+```bash
+node .output/server/index.mjs
+```
+
+任何能够运行 Node.js 24、提供环境变量、暴露 HTTP 端口并访问 PostgreSQL 的平台都可以部署 ShipGo。
+
+## 构建时与运行时配置
+
+`VITE_` 变量在构建时写入浏览器资源，仅服务端变量在运行时读取。使用正确的公开 Origin、语言与货币构建；使用匹配的 `APP_URL` 与 Provider 密钥运行；新版本接收流量前执行迁移。
+
+不同环境的 `VITE_` 配置不同时，不要复用同一个镜像。
+
+## Docker 生产发布顺序
+
+```bash
+docker build \
+  --build-arg VITE_APP_URL=https://app.example.com \
+  --build-arg VITE_DEFAULT_LOCALE=en \
+  --build-arg VITE_ENABLED_LOCALES=en,zh \
+  --build-arg VITE_CURRENCY=USD \
+  -t registry.example.com/shipgo:2026-06-15 .
+
+DATABASE_URL="$PRODUCTION_DATABASE_URL" pnpm db:migrate
+
+docker run -d --name shipgo -p 3000:3000 \
+  --env-file .env.production \
+  registry.example.com/shipgo:2026-06-15
+```
+
+镜像以非 Root 的 `node` 用户运行，并包含针对 `/api/ping` 的健康检查。
+
+## 平台要求
+
+- PostgreSQL 必须可以通过安全连接访问。
+- 支付 Provider 必须能访问公开 Webhook Route。
+- 上传需要 S3 兼容存储；应用不依赖持久化本地文件。
+- 启用积分时应使用 Scheduler 调用积分维护。
+- 日志保留时间应足以调查 Webhook 与发布问题。
+
+部署后验证健康检查、注册登录、受保护页面、邮件、支付 Webhook、客户门户、文件上传、本地化路由、Sitemap 和分析同意行为。

@@ -1,0 +1,44 @@
+---
+title: Google Analytics
+description: Add Google Analytics traffic measurement to ShipGo
+---
+
+Google Analytics measures website traffic, user journeys, and event-based
+conversions.
+
+## Configuration
+
+1. Create a Google Analytics 4 property in [Google Analytics](https://analytics.google.com/).
+2. Copy the **Measurement ID** (format: `G-XXXXXXXXXX`).
+3. Add it to `.env.local`:
+
+```dotenv
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+4. Restart the application.
+
+The tracking script loads only when `VITE_GA_MEASUREMENT_ID` is configured.
+
+## What is tracked
+
+- Page views across localized routes.
+- User sessions and session duration.
+- Traffic sources and campaigns via UTM parameters.
+
+## Conversion events
+
+For conversion tracking, send custom events after significant user actions:
+
+- `sign_up` after successful registration.
+- `purchase` after completed payment.
+- `generate_lead` after contact form submission.
+
+Use the `gtag` API in browser code or server-side measurement for sensitive
+actions.
+
+## Official documentation
+
+- [Google Analytics 4](https://support.google.com/analytics/topic/9143232)
+- [gtag.js Events](https://developers.google.com/analytics/devguides/collection/ga4/events)
+- [Server-Side Measurement](https://developers.google.com/analytics/devguides/collection/protocol/ga4)

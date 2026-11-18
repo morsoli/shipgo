@@ -1,0 +1,35 @@
+{
+  "columns": [
+    {
+      "title": "进行中",
+      "icon": "Loader",
+      "color": "#F59E0B",
+      "items": []
+    },
+    {
+      "title": "后续迭代",
+      "icon": "Calendar",
+      "color": "#60A5FA",
+      "items": [
+        { "title": "联盟推广与转化归因", "description": "接入联盟推广平台，记录注册、付费与佣金归因。" },
+        { "title": "分析与性能监控扩展", "description": "补充更多产品分析、访问统计和前端性能洞察 Provider。" },
+        { "title": "高级数据表能力", "description": "为后台列表增加组合筛选、多列排序、列管理和批量操作。" },
+        { "title": "扩展文档组件库", "description": "增加步骤、标签页、文件树、代码示例和媒体嵌入等内容组件。" }
+      ]
+    },
+    {
+      "title": "已完成",
+      "icon": "Rocket",
+      "color": "#34D399",
+      "items": [
+        { "title": "全栈工程与部署基础", "description": "TanStack Start、Nitro、PostgreSQL、Drizzle、Docker 和健康检查。" },
+        { "title": "认证与账户管理", "description": "邮箱密码、社交登录、邮箱验证、密码重置、个人资料、安全设置和 API Key。" },
+        { "title": "支付、套餐与积分", "description": "Stripe、Creem、订阅、终身套餐、积分包、客户门户、Webhook 和积分账本。" },
+        { "title": "后台管理与用户运营", "description": "管理员权限、用户查询、封禁、账户管理、通知偏好和积分发放。" },
+        { "title": "内容、营销与国际化", "description": "首页、定价、博客、文档、更新日志、路线图、搜索、法律页面和中英文路由。" },
+        { "title": "集成与增长工具", "description": "邮件、Newsletter、联系表单、等待列表、文件上传、验证码、客服和分析脚本。" },
+        { "title": "SEO 与发布保障", "description": "Metadata、canonical、hreflang、Sitemap、robots.txt、测试和发布检查。" }
+      ]
+    }
+  ]
+}

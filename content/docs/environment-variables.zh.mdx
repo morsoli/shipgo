@@ -1,0 +1,113 @@
+---
+title: 环境变量
+description: ShipGo 运行时、构建时、Provider 与发布变量完整指南
+icon: KeyRound
+---
+
+开发环境将 `.env.example` 复制为 `.env.local`。生产环境应在部署平台中配置变量，不要提交环境文件。
+
+## 安全规则
+
+- 以 `VITE_` 开头的变量是公开变量，会被写入浏览器代码。
+- 所有密钥都只能在服务端使用，绝不能加 `VITE_` 前缀。
+- 开发、预发布和生产环境使用不同的密钥与 Provider 账户。
+- 密钥出现在源码、日志、截图或客户端 Bundle 中时，应立即轮换。
+- 修改运行时变量后重启服务；修改 `VITE_` 变量后重新构建。
+
+## 应用与数据库
+
+| 变量 | 生产环境是否必需 | 用途 |
+| --- | --- | --- |
+| `APP_URL` | 是 | 回调、重定向、Sitemap 和可信 Origin 使用的公开服务端地址 |
+| `VITE_APP_URL` | 是 | 浏览器公开地址，应与 `APP_URL` 相同 |
+| `DATABASE_URL` | 是 | PostgreSQL 连接 URL |
+| `TEST_DATABASE_URL` | 运行集成测试时 | 专用且可丢弃的集成测试数据库 |
+| `BETTER_AUTH_SECRET` | 是 | Better Auth 签名密钥，至少使用 32 位随机字符 |
+| `ADMIN_DEMO_MODE` | 否 | 让支持的管理员写操作进入只读模式 |
+| `CRON_SECRET` | 启用积分时 | 保护 `/api/cron/credits` |
+
+使用密码管理器或以下命令生成密钥：
+
+```bash
+openssl rand -base64 48
+```
+
+## 认证
+
+| 变量 | 默认值 | 用途 |
+| --- | --- | --- |
+| `CREDENTIAL_AUTH_ENABLED` | `true` | 启用邮箱密码登录 |
+| `EMAIL_VERIFICATION_ENABLED` | `false` | 进入受保护页面前要求验证邮箱 |
+| `GOOGLE_AUTH_ENABLED` | `false` | 凭据存在时启用 Google OAuth |
+| `GOOGLE_CLIENT_ID`、`GOOGLE_CLIENT_SECRET` | 空 | Google OAuth 应用凭据 |
+| `GITHUB_AUTH_ENABLED` | `false` | 凭据存在时启用 GitHub OAuth |
+| `GITHUB_CLIENT_ID`、`GITHUB_CLIENT_SECRET` | 空 | GitHub OAuth 应用凭据 |
+| `VITE_TURNSTILE_CAPTCHA_ENABLED` | `false` | 在浏览器渲染 Turnstile |
+| `VITE_TURNSTILE_SITE_KEY` | 空 | 公开的 Turnstile Site Key |
+| `TURNSTILE_CAPTCHA_ENABLED` | `false` | 服务端校验 Turnstile |
+| `TURNSTILE_SECRET_KEY` | 空 | 仅服务端使用的 Turnstile Secret |
+
+只有在 Provider 中注册准确的生产回调地址后才启用 OAuth。两个 Turnstile 开关应同时启用。
+
+## 国际化与开发
+
+| 变量 | 示例 | 用途 |
+| --- | --- | --- |
+| `VITE_DEFAULT_LOCALE` | `en` | 不带 URL 前缀的语言 |
+| `VITE_ENABLED_LOCALES` | `en,zh` | 构建时包含的语言，使用英文逗号分隔 |
+| `VITE_CURRENCY` | `USD` | 显示货币 |
+| `TANSTACK_DEVTOOLS_EVENT_BUS_ENABLED` | `false` | 启用可选独立事件总线 |
+| `TANSTACK_DEVTOOLS_EVENT_BUS_PORT` | `42069` | 事件总线端口 |
+
+ShipGo 当前包含完整的中英文字典。添加新语言还需要修改内容和代码，不能只修改环境变量。
+
+## 邮件与 Newsletter
+
+| 变量 | 用途 |
+| --- | --- |
+| `EMAIL_PROVIDER` | 当前生产校验要求为 `resend` |
+| `EMAIL_FROM` | 已验证的发件地址 |
+| `RESEND_API_KEY` | Resend 服务端 API Key |
+| `NEWSLETTER_PROVIDER` | `resend` 或 `beehiiv` |
+| `RESEND_AUDIENCE_ID` | Newsletter 订阅使用的 Resend Audience |
+| `BEEHIIV_API_KEY`、`BEEHIIV_PUBLICATION_ID` | Beehiiv Newsletter 凭据 |
+| `CONTACT_EMAIL` | 联系表单消息接收地址 |
+
+## 支付
+
+将 `PAYMENT_PROVIDER` 设为 `stripe` 或 `creem`，然后只配置所选 Provider：
+
+| 变量 | 用途 |
+| --- | --- |
+| `STRIPE_SECRET_KEY`、`STRIPE_WEBHOOK_SECRET` | Stripe API 与签名 Webhook |
+| `CREEM_API_KEY`、`CREEM_WEBHOOK_SECRET` | Creem API 与签名 Webhook |
+| `CREEM_DEBUG` | 使用 Creem 测试服务器 |
+| `STRIPE_PRO_MONTHLY_PRICE_ID`、`STRIPE_PRO_YEARLY_PRICE_ID` | 服务端套餐价格 ID |
+| `STRIPE_LIFETIME_PRICE_ID` | 服务端终身套餐价格 ID |
+| `STRIPE_CREDIT_*_PRICE_ID` | 积分包价格 ID |
+| `VITE_STRIPE_*_PRICE_ID` | 写入定价 UI 的公开套餐价格 ID |
+
+价格 ID 必须与 `src/config/business-config.ts` 中的金额与周期一致（`src/config/payment-config.ts` 会自动从其派生）。
+
+## 存储、通知与分析
+
+S3 兼容上传使用 `STORAGE_ACCESS_KEY_ID`、`STORAGE_SECRET_ACCESS_KEY`、`STORAGE_REGION`、`STORAGE_BUCKET_NAME`、`STORAGE_ENDPOINT` 和 `STORAGE_PUBLIC_URL`。
+
+业务通知使用 `DISCORD_WEBHOOK_URL` 与 `FEISHU_WEBHOOK_URL`。客服聊天在浏览器使用 `VITE_CRISP_WEBSITE_ID`，服务端可选使用 `CRISP_WEBSITE_ID`。
+
+只有配置对应公开 ID 后，分析集成才会启用：
+
+- `VITE_GA_MEASUREMENT_ID`
+- `VITE_UMAMI_WEBSITE_ID`、`VITE_UMAMI_SCRIPT_URL`
+- `VITE_PLAUSIBLE_DOMAIN`
+- `VITE_OPENPANEL_CLIENT_ID`
+- `VITE_CLARITY_PROJECT_ID`
+- `VITE_AHREFS_SCRIPT_URL`、`VITE_DATAFAST_SCRIPT_URL`、`VITE_SELINE_SCRIPT_URL`
+
+## 生产环境校验
+
+生产启动会校验公开 URL、数据库、认证密钥、所选支付 Provider、Webhook 密钥与 Resend 配置。部署前运行完整发布检查：
+
+```bash
+pnpm verify:release
+```

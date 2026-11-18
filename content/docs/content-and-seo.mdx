@@ -1,0 +1,60 @@
+---
+title: Content and SEO
+description: Publish localized docs, blog posts, changelogs, legal pages, and metadata
+icon: FileText
+---
+
+Content lives under `content/` and is compiled by Fumadocs MDX. ShipGo includes
+docs, blog posts, authors, categories, changelog entries, roadmap data, and
+legal pages.
+
+Blog and docs support localized routes, premium gates, Markdown export, related
+content, custom MDX components, and Orama search. Public pages generate
+canonical links, localized hreflang alternates, Open Graph metadata, robots.txt,
+a web manifest, and a multilingual Sitemap.
+
+Run `pnpm content:build` after changing schemas or locale settings. Use
+`published: false` in blog or changelog frontmatter to keep drafts private.
+
+## Content collections
+
+| Directory | Purpose |
+| --- | --- |
+| `content/docs` | Product documentation and navigation metadata |
+| `content/blog` | Blog posts |
+| `content/authors` | Blog author profiles |
+| `content/categories` | Blog categories |
+| `content/changelog` | Product release notes |
+| `content/legal` | Terms, privacy, and cookie policies |
+| `content/roadmap` | Localized roadmap data |
+
+`source.config.ts` defines each collection's frontmatter schema. Invalid or missing required frontmatter fails content compilation.
+
+## Publish a blog post
+
+Create `content/blog/launch.mdx` and `content/blog/launch.zh.mdx` when the post should exist in both languages. Author and category slugs must already exist in their collections. Use `published: false` for a draft.
+
+```yaml
+---
+title: Launch
+description: What changed in this release
+date: 2026-06-15
+published: true
+categories: [company]
+author: shipgo
+tags: [release]
+premium: false
+---
+```
+
+## Documentation and premium content
+
+`content/docs/meta.json` and `meta.zh.json` control page order and section labels. Docs and blog schemas support `premium: true`; the Markdown endpoint verifies premium access before returning source content.
+
+## SEO checklist
+
+- Replace the default title, description, logo, and Open Graph image.
+- Review every legal page for the actual business and jurisdiction.
+- Verify `/sitemap.xml`, `/robots.txt`, and `/manifest.webmanifest`.
+- Check canonical and `hreflang` links in every enabled language.
+- Ensure drafts and premium content are not unintentionally exposed.

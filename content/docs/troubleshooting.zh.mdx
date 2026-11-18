@@ -1,0 +1,99 @@
+---
+title: 故障排查
+description: 定位常见安装、数据库、认证、构建和 Provider 问题
+icon: CircleHelp
+---
+
+从最小的可观察边界开始：先检查进程，再检查 `/api/ping`，然后检查失败功能，最后检查外部 Provider。
+
+## 应用无法启动
+
+```bash
+node --version
+pnpm --version
+pnpm content:build
+pnpm typecheck
+```
+
+使用 Node.js 24 和 `package.json` 指定的 pnpm 版本。生成内容过期时，删除 `.source` 后重新运行 `pnpm content:build`。
+
+## 端口 3000 已被占用
+
+找到占用端口的进程，或停止已有 ShipGo 服务。多个项目使用 `42069` 时，可选的 TanStack Devtools 事件总线也会冲突；关闭它或修改 `TANSTACK_DEVTOOLS_EVENT_BUS_PORT`。
+
+## 数据库健康检查返回 503
+
+```bash
+curl -i http://localhost:3000/api/ping
+docker compose ps
+docker compose logs db
+```
+
+- `database: "not_configured"` 表示缺少 `DATABASE_URL`。
+- `database: "unavailable"` 表示 URL 存在，但查询失败。
+- Compose 容器内使用主机名 `db`，宿主机使用 `localhost`。
+- 确认已运行 `pnpm db:migrate`。
+
+## 登录页提示认证未配置
+
+确认 `DATABASE_URL` 与 `BETTER_AUTH_SECRET` 存在，然后重启服务。生产环境认证密钥至少需要 32 个字符。
+
+OAuth 按钮要求启用开关、Client ID 和 Client Secret 都存在。如果 Provider 中的回调 URL 与部署地址不完全相同，仍会拒绝登录。
+
+## 注册成功但未收到邮件
+
+本地快速开始默认关闭邮箱验证。真实发送需要：
+
+1. 在 Resend 验证发件域名。
+2. 将 `EMAIL_FROM` 设为已验证地址。
+3. 配置有效的 `RESEND_API_KEY`。
+4. 使用 `pnpm email:preview` 预览模板。
+5. 在服务端日志中检查 Provider 响应。
+
+## 支付结账失败
+
+- 确认 `PAYMENT_PROVIDER` 选择了预期 Provider。
+- 确认价格 ID 存在，并与 Provider 模式一致。
+- 确认结账 URL 与 `APP_URL` 使用相同 Origin。
+- 确认测试密钥搭配测试价格 ID。
+- 结账后检查 Webhook 投递日志。
+
+支付完成依赖签名 Webhook。托管结账页成功，并不能单独证明本地支付记录与积分已更新。
+
+## 文件上传失败
+
+上传接口要求用户登录并配置 S3 兼容存储，只接受最大 5 MB 的 JPEG、PNG 或 WebP。检查 Bucket 权限、Endpoint、Region、凭据与公开 URL。
+
+## 文档页或翻译缺失
+
+运行：
+
+```bash
+pnpm content:build
+```
+
+确认英文使用 `.mdx`，中文使用 `.zh.mdx`，并且页面 Slug 同时出现在 `content/docs/meta.json` 与 `content/docs/meta.zh.json`。
+
+## Docker 镜像仍使用旧公开配置
+
+以 `VITE_` 开头的值会在构建时写入 Bundle。传入更新后的构建参数并重新构建：
+
+```bash
+docker compose up --build -d app
+```
+
+只修改运行时变量无法改变已构建的浏览器 Bundle。
+
+## 发布验证失败
+
+单独运行失败命令，并修复第一个可执行错误：
+
+```bash
+pnpm check
+pnpm deps:check
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+不要在不理解其保护行为的情况下跳过发布检查。

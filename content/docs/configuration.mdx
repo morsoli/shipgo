@@ -1,0 +1,93 @@
+---
+title: Configuration
+description: Configure branding, features, plans, providers, and environment variables
+icon: Settings2
+---
+
+ShipGo separates static product configuration from secrets:
+
+- `src/config/site-config.ts`: brand, features, content, theme, and providers.
+- `src/config/business-config.ts`: plans, prices, credits, and packages.
+- `.env.local`: deployment-specific URLs, credentials, and secrets.
+- `.env.example`: authoritative environment variable inventory.
+
+Only variables prefixed with `VITE_` may be exposed to browser code. Keep
+payment keys, database URLs, webhook secrets, and provider API keys server-only.
+
+Production startup validates required variables. Keep `APP_URL` and
+`VITE_APP_URL` equal so callbacks, metadata, Sitemap, robots.txt, checkout
+redirects, trusted-origin checks, and browser navigation use the same origin.
+
+## Environment notes
+
+- `NEWSLETTER_PROVIDER` selects `resend` or `beehiiv`.
+- `VITE_DEFAULT_LOCALE` selects the unprefixed locale.
+- `VITE_ENABLED_LOCALES` selects the comma-separated locale set. ShipGo ships
+  English and Chinese dictionaries.
+- `CREDENTIAL_AUTH_ENABLED`, `GOOGLE_AUTH_ENABLED`, and `GITHUB_AUTH_ENABLED`
+  control login-page methods. OAuth buttons also require both matching provider
+  credentials.
+- `TANSTACK_DEVTOOLS_EVENT_BUS_ENABLED=true` enables the optional standalone
+  development event bus. Change `TANSTACK_DEVTOOLS_EVENT_BUS_PORT` when running
+  multiple projects that enable it.
+- Contact delivery requires `CONTACT_EMAIL` and a configured email provider.
+- Optional analytics and Crisp scripts are rendered only when their public
+  `VITE_` identifiers are configured. PostHog requires both `VITE_POSTHOG_KEY`
+  and `VITE_POSTHOG_HOST`.
+
+Restart the application after changing environment variables.
+
+## Configure a new product
+
+Use this order when turning ShipGo into a new product:
+
+1. Change the brand and public capabilities in `src/config/site-config.ts`.
+2. Change plans, prices, and credits in `src/config/business-config.ts`.
+3. Confirm `src/config/payment-config.ts` reflects the updated browser pricing model (derived automatically from `businessConfig`).
+4. Replace landing, pricing, auth, dashboard, and settings copy in `src/config/locale`.
+5. Replace `public/logo.svg`, `public/og.jpg`, icons, and screenshots.
+6. Add real secrets to `.env.local` or the deployment platform.
+7. Run `pnpm verify:release`.
+
+## Site configuration
+
+`siteConfig` is the public product contract.
+
+| Section | Controls |
+| --- | --- |
+| `title`, `titleSuffix`, `description`, `keywords` | Metadata and shared branding |
+| `theme` | Default theme and whether users can switch |
+| `images` | Logo and social preview image |
+| `robots` | Search-engine indexing directives |
+| `social` | Public community and source links |
+| `features` | Auth, payments, credits, blog, docs, and newsletter visibility |
+| `auth` | Declared methods, session length, and verification behavior |
+| `providers` | Payment, email, newsletter, storage, and notification capabilities |
+| `content` | Blog page size, documentation, and search limits |
+
+Feature flags should describe a real supported user flow. Hiding a navigation item is not enough when a route, API, cron task, or provider remains active.
+
+## Business configuration
+
+`src/config/business-config.ts` is authoritative for server-side plan and credit behavior. It defines free, subscription, and lifetime plans; provider price IDs; credits granted per plan; purchasable credit packages; and supported billing order kinds.
+
+`src/config/payment-config.ts` derives the browser pricing UI model directly from `businessConfig` (converting major currency units to minor units). When changing a paid plan, update `src/config/business-config.ts` and the corresponding environment price IDs.
+
+## Configuration checklist
+
+```bash
+pnpm content:build
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+Then inspect the home page, pricing page, login page, dashboard navigation, generated sitemap, and one checkout in the provider's test mode.
+
+## Common mistakes
+
+- Exposing a secret with a `VITE_` prefix.
+- Changing `APP_URL` but not `VITE_APP_URL`.
+- Changing a provider price without updating server and browser configuration.
+- Enabling a login method without credentials or callback URLs.
+- Adding a locale code without adding dictionaries and localized content.

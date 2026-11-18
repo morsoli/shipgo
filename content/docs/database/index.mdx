@@ -1,0 +1,66 @@
+---
+title: Database
+description: Manage the PostgreSQL schema, migrations, and compatibility checks
+icon: Database
+index: true
+---
+
+ShipGo uses Drizzle ORM with PostgreSQL. Authentication and business data use
+eight compatibility-sensitive tables: `user`, `session`, `account`,
+`verification`, `apikey`, `shipgo_billing_order`, `shipgo_credit_wallet`, and
+`shipgo_credit_ledger`.
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+pnpm db:studio
+pnpm db:check-compat
+```
+
+Do not run destructive migrations against production without a verified backup.
+Run `db:check-compat` against a recent production copy before a cutover. Credit
+consumption uses transactions, per-user advisory locking, and FIFO semantics.
+
+## Cutover validation
+
+1. Restore a recent production backup into an isolated PostgreSQL instance.
+2. Point `DATABASE_URL` at the copy.
+3. Run `pnpm db:check-compat`.
+4. Run the application and verify existing users, sessions, API keys, payments,
+   balances, and credit transactions.
+5. Compare generated schema changes manually. Reject any destructive statement.
+
+`db:push` is a developer convenience and must not be used against production.
+Back up the database immediately before cutover.
+
+## Schema ownership
+
+`src/db/schema.ts` exports the schema Drizzle Kit discovers.
+
+| File | Tables |
+| --- | --- |
+| `src/db/auth.schema.ts` | `user`, `session`, `account`, `verification`, `apikey` |
+| `src/db/app.schema.ts` | `shipgo_billing_order`, `shipgo_credit_wallet`, `shipgo_credit_ledger` |
+
+Authentication tables follow Better Auth compatibility requirements. Review Better Auth migrations and ShipGo's compatibility check before changing their columns.
+
+## Add a product table
+
+1. Define the table in an appropriate `src/db/*.schema.ts` file.
+2. Export it from `src/db/schema.ts`.
+3. Add repository functions under `src/repositories`.
+4. Add business behavior under `src/services`.
+5. Generate and inspect the migration with `pnpm db:generate`.
+6. Apply it to a disposable database with `pnpm db:migrate`, then run tests.
+
+Commit both schema code and generated migration files.
+
+## Migration discipline
+
+- Prefer additive migrations and backfill data separately.
+- Avoid dropping a column in the same release that stops reading it.
+- Keep application changes compatible during rolling deployments.
+- Back up production immediately before applying migrations.
+- Put SQL in repositories and multi-step behavior in services, not routes or React components.
+
+Payment and credit writes must use transactions and idempotency boundaries because webhooks can be delivered more than once.

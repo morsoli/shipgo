@@ -1,0 +1,43 @@
+---
+title: Welcome to ShipGo
+description: A production-ready TanStack full-stack application template
+image: /og.jpg
+date: 2026-06-15T00:00:00Z
+published: true
+categories: [company, product]
+author: shipgo
+tags: [tanstack, saas, development]
+---
+
+# Welcome to ShipGo
+
+ShipGo is a production-ready full-stack template built with TanStack Start, React, PostgreSQL, Drizzle ORM, and Better Auth.
+
+## What is included?
+
+- Email/password, Google, and GitHub authentication
+- Protected dashboard, settings, API keys, and admin users
+- Stripe or Creem payments with subscriptions, lifetime purchases, and credits
+- Localized marketing pages, blog, documentation, legal pages, roadmap, and changelog
+- Resend email, newsletter providers, S3-compatible storage, notifications, and analytics
+- Node.js and Docker deployment with health, smoke, integration, and release checks
+
+## Start locally
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+cp .env.example .env.local
+docker compose up -d db
+DATABASE_URL=postgresql://postgres:shipgo_local_password@localhost:5432/shipgo pnpm db:migrate
+pnpm dev
+```
+
+Open [the documentation](/docs) for the Docker quick start, project structure, configuration, feature guides, and production deployment checklist.
+
+## Why TanStack Start?
+
+ShipGo uses TanStack Start and TanStack Router for typed file routing, server handlers, server rendering, and client navigation. Business services, repositories, and provider adapters remain explicit and portable.
+
+Build the product-specific workflow in `src/services`, keep database access in `src/repositories`, and use `src/routes` for pages and HTTP boundaries.
+

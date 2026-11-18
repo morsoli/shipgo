@@ -1,0 +1,23 @@
+<svg width="800" height="520" viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="520" rx="24" fill="#F8FAFC"/>
+  <rect x="40" y="40" width="720" height="440" rx="18" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+  <rect x="40" y="40" width="320" height="440" rx="18" fill="#0F172A"/>
+  <text x="76" y="96" fill="#FFFFFF" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700">ShipGo Auth</text>
+  <text x="76" y="132" fill="#94A3B8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Better Auth + Drizzle PG</text>
+  <rect x="76" y="210" width="248" height="46" rx="10" fill="#1E293B" stroke="#334155"/>
+  <text x="96" y="238" fill="#E2E8F0" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Session &amp; Cookie Cache</text>
+  <rect x="76" y="272" width="248" height="46" rx="10" fill="#1E293B" stroke="#334155"/>
+  <text x="96" y="300" fill="#E2E8F0" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">OAuth Account Linking</text>
+  <rect x="76" y="334" width="248" height="46" rx="10" fill="#1E293B" stroke="#334155"/>
+  <text x="96" y="362" fill="#38BDF8" font-family="ui-monospace, monospace" font-size="14">API Keys (sgk_...)</text>
+  <text x="412" y="112" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700">Sign in to ShipGo</text>
+  <rect x="412" y="148" width="296" height="44" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="490" y="175" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="600">Continue with Google</text>
+  <rect x="412" y="206" width="296" height="44" rx="10" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="490" y="233" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="600">Continue with GitHub</text>
+  <line x1="412" y1="278" x2="708" y2="278" stroke="#E2E8F0" stroke-width="1.5"/>
+  <rect x="412" y="302" width="296" height="42" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <rect x="412" y="356" width="296" height="42" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <rect x="412" y="416" width="296" height="44" rx="10" fill="#2563EB"/>
+  <text x="536" y="443" fill="#FFFFFF" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">Sign In</text>
+</svg>

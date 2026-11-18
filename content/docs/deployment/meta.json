@@ -1,0 +1,8 @@
+{
+  "title": "Deployment",
+  "icon": "Cloud",
+  "pages": [
+    "index",
+    "docker"
+  ]
+}

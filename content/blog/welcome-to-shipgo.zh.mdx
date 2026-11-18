@@ -1,0 +1,42 @@
+---
+title: 欢迎使用 ShipGo
+description: 可用于生产环境的 TanStack 全栈应用模板
+image: /og.jpg
+date: 2026-06-15T00:00:00Z
+published: true
+categories: [company, product]
+author: shipgo
+tags: [tanstack, saas, development]
+---
+
+# 欢迎使用 ShipGo
+
+ShipGo 是基于 TanStack Start、React、PostgreSQL、Drizzle ORM 和 Better Auth 构建的生产级全栈模板。
+
+## 包含哪些能力？
+
+- 邮箱密码、Google 与 GitHub 认证
+- 受保护的 Dashboard、设置、API Key 与管理员用户
+- Stripe 或 Creem 支付，以及订阅、终身购买和积分
+- 本地化营销页、博客、文档、法律页面、路线图和更新日志
+- Resend 邮件、Newsletter Provider、S3 兼容存储、通知和分析
+- 带有健康检查、冒烟测试、集成测试和发布检查的 Node.js 与 Docker 部署
+
+## 本地启动
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+cp .env.example .env.local
+docker compose up -d db
+DATABASE_URL=postgresql://postgres:shipgo_local_password@localhost:5432/shipgo pnpm db:migrate
+pnpm dev
+```
+
+打开[完整文档](/zh/docs)，查看 Docker 快速部署、项目结构、配置、功能指南和生产部署检查清单。
+
+## 为什么选择 TanStack Start？
+
+ShipGo 使用 TanStack Start 与 TanStack Router 实现类型化文件路由、Server Handler、服务端渲染和客户端导航。业务 Service、Repository 与 Provider Adapter 保持明确且可移植。
+
+产品专属流程放在 `src/services`，数据库访问放在 `src/repositories`，页面与 HTTP 边界放在 `src/routes`。

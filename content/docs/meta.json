@@ -1,0 +1,29 @@
+{
+  "title": "ShipGo",
+  "description": "Build and ship a production-ready TanStack full-stack application",
+  "icon": "Ship",
+  "root": true,
+  "pages": [
+    "---Start Here---",
+    "index",
+    "first-application",
+    "project-structure",
+    "---Customize---",
+    "configuration",
+    "internationalization",
+    "content-and-seo",
+    "---Core Features---",
+    "authentication",
+    "database",
+    "payments-and-credits",
+    "integrations",
+    "analytics",
+    "---Deploy and Operate---",
+    "deployment",
+    "operations",
+    "troubleshooting",
+    "---Reference---",
+    "environment-variables",
+    "api-reference"
+  ]
+}

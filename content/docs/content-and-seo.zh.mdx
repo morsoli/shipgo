@@ -1,0 +1,58 @@
+---
+title: 内容与 SEO
+description: 发布多语言文档、博客、更新日志、法律页面与 Metadata
+icon: FileText
+---
+
+内容位于 `content/`，由 Fumadocs MDX 编译。ShipGo 内置文档、博客、作者、分类、
+更新日志、Roadmap 数据与法律页面。
+
+博客和文档支持多语言路由、Premium 限制、Markdown 导出、相关文章、自定义 MDX
+组件与 Orama 搜索。公共页面会生成 canonical、多语言 hreflang、Open Graph、
+robots.txt、Web Manifest 与多语言 Sitemap。
+
+修改 Schema 或语言配置后执行 `pnpm content:build`。博客或更新日志 Frontmatter
+使用 `published: false` 可保留草稿。
+
+## 内容集合
+
+| 目录 | 用途 |
+| --- | --- |
+| `content/docs` | 产品文档与导航元数据 |
+| `content/blog` | 博客文章 |
+| `content/authors` | 博客作者资料 |
+| `content/categories` | 博客分类 |
+| `content/changelog` | 产品发布记录 |
+| `content/legal` | 服务条款、隐私与 Cookie 政策 |
+| `content/roadmap` | 本地化路线图数据 |
+
+`source.config.ts` 定义每个集合的 Frontmatter Schema。无效或缺少必填 Frontmatter 会导致内容编译失败。
+
+## 发布博客文章
+
+文章需要同时提供中英文时，创建 `content/blog/launch.mdx` 与 `content/blog/launch.zh.mdx`。作者和分类 Slug 必须已存在于对应集合。草稿使用 `published: false`。
+
+```yaml
+---
+title: Launch
+description: What changed in this release
+date: 2026-06-15
+published: true
+categories: [company]
+author: shipgo
+tags: [release]
+premium: false
+---
+```
+
+## 文档与 Premium 内容
+
+`content/docs/meta.json` 与 `meta.zh.json` 控制页面顺序和分组标题。文档和博客 Schema 支持 `premium: true`；Markdown API 返回源码前会验证 Premium 权限。
+
+## SEO 检查清单
+
+- 替换默认标题、描述、Logo 与 Open Graph 图片。
+- 根据真实业务与管辖地区审查所有法律页面。
+- 验证 `/sitemap.xml`、`/robots.txt` 和 `/manifest.webmanifest`。
+- 检查所有启用语言中的 Canonical 与 `hreflang`。
+- 确认草稿和 Premium 内容没有意外暴露。

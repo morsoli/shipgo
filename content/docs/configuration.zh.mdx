@@ -1,0 +1,88 @@
+---
+title: 配置说明
+description: 配置品牌、功能、套餐、Provider 与环境变量
+icon: Settings2
+---
+
+ShipGo 将静态产品配置与敏感信息分离：
+
+- `src/config/site-config.ts`：品牌、功能、内容、主题与 Provider。
+- `src/config/business-config.ts`：套餐、价格、积分与积分包。
+- `.env.local`：部署环境专属 URL、凭据与密钥。
+- `.env.example`：环境变量的权威清单。
+
+只有 `VITE_` 前缀变量可以暴露给浏览器。支付密钥、数据库 URL、Webhook Secret
+和 Provider API Key 必须仅保留在服务端。
+
+生产启动会校验必需变量。请保持 `APP_URL` 与 `VITE_APP_URL` 一致，确保回调、
+Metadata、Sitemap、robots.txt、结账跳转、可信 Origin 检查与浏览器导航使用同一域名。
+
+## 环境变量说明
+
+- `NEWSLETTER_PROVIDER` 可选 `resend` 或 `beehiiv`。
+- `VITE_DEFAULT_LOCALE` 选择不带前缀的默认语言。
+- `VITE_ENABLED_LOCALES` 选择逗号分隔的可用语言集合。ShipGo 默认提供英文和中文词典。
+- `CREDENTIAL_AUTH_ENABLED`、`GOOGLE_AUTH_ENABLED` 与 `GITHUB_AUTH_ENABLED`
+  控制登录页方法。OAuth 按钮还要求对应 Provider 的 Client ID 与 Secret 均已配置。
+- `TANSTACK_DEVTOOLS_EVENT_BUS_ENABLED=true` 会启用可选的独立开发事件总线。
+  多个项目同时启用时，请修改 `TANSTACK_DEVTOOLS_EVENT_BUS_PORT`。
+- 联系表单投递需要 `CONTACT_EMAIL` 和已配置的邮件 Provider。
+- 可选分析脚本与 Crisp 仅在配置对应公开 `VITE_` 标识后渲染。PostHog 需要同时配置
+  `VITE_POSTHOG_KEY` 与 `VITE_POSTHOG_HOST`。
+
+修改环境变量后请重启应用。
+
+## 配置一个新产品
+
+将 ShipGo 改造成新产品时，按以下顺序操作：
+
+1. 在 `src/config/site-config.ts` 修改品牌和公开能力。
+2. 在 `src/config/business-config.ts` 修改套餐、价格与积分。
+3. 确认 `src/config/payment-config.ts`（自动从 `businessConfig` 派生）中的浏览器端定价模型符合预期。
+4. 替换 `src/config/locale` 中的首页、定价、认证、Dashboard 和设置文案。
+5. 替换 `public/logo.svg`、`public/og.jpg`、图标与截图。
+6. 将真实密钥写入 `.env.local` 或部署平台。
+7. 运行 `pnpm verify:release`。
+
+## 网站配置
+
+`siteConfig` 是公开的产品配置契约。
+
+| 部分 | 控制内容 |
+| --- | --- |
+| `title`、`titleSuffix`、`description`、`keywords` | 元信息与共享品牌 |
+| `theme` | 默认主题与是否允许用户切换 |
+| `images` | Logo 与社交分享图 |
+| `robots` | 搜索引擎索引指令 |
+| `social` | 公开社区与源码链接 |
+| `features` | 认证、支付、积分、博客、文档和 Newsletter 的可见性 |
+| `auth` | 声明的登录方式、会话时长与验证行为 |
+| `providers` | 支付、邮件、Newsletter、存储和通知能力 |
+| `content` | 博客分页、文档和搜索限制 |
+
+功能开关应描述真正支持的用户流程。仅隐藏导航项是不够的，还要确认 Route、API、Cron 和 Provider 的行为符合预期。
+
+## 业务配置
+
+`src/config/business-config.ts` 是服务端套餐与积分行为的权威来源，定义免费、订阅和终身套餐，Provider 价格 ID，每个套餐赠送的积分，可购买积分包，以及支持的账单订单类型（`orderKinds`）。
+
+`src/config/payment-config.ts` 直接从 `businessConfig` 派生浏览器定价 UI 模型（将主货币单位转换为最小单位）。修改付费套餐时，只需更新 `src/config/business-config.ts` 与对应环境变量中的价格 ID。
+
+## 配置检查清单
+
+```bash
+pnpm content:build
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+然后检查首页、定价页、登录页、Dashboard 导航、生成的 Sitemap，并在 Provider 测试模式中完成一次结账。
+
+## 常见错误
+
+- 使用 `VITE_` 前缀暴露密钥。
+- 修改 `APP_URL` 却没有修改 `VITE_APP_URL`。
+- 修改 Provider 价格，却未同步服务端与浏览器配置。
+- 没有凭据或回调 URL 就启用登录方式。
+- 添加语言代码，却没有添加字典和本地化内容。

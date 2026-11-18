@@ -1,0 +1,62 @@
+---
+title: 第三方集成
+description: 接入邮件、Newsletter、存储、通知、分析与客服
+icon: Plug
+---
+
+Provider Adapter 将第三方服务隔离在核心业务逻辑之外：
+
+- Resend 发送事务邮件，也可管理 Newsletter Audience。
+- Beehiiv 可作为 Newsletter 的替代 Provider。
+- S3 兼容存储用于已认证用户的头像上传。
+- Discord 与飞书接收尽力而为的业务通知。
+- Crisp、Google Analytics、Umami、Plausible、OpenPanel、PostHog、Clarity 等脚本仅在配置后加载。
+
+缺少可选集成时不应阻止应用启动。生产必需集成应在发布验证阶段检查。
+
+## 运行行为
+
+邮件使用 React Email 模板。可通过以下命令预览模板：
+
+```bash
+pnpm email:preview
+```
+
+Newsletter 订阅支持 Resend Audiences 和 Beehiiv。注册、Waitlist 与通知设置使用同一
+Newsletter Service。
+
+头像上传要求用户已认证，并通过配置的 S3 兼容存储端点接收 JPEG、PNG 或 WebP。
+
+Discord 与飞书投递失败只会记录日志，不会回滚支付或积分处理。
+
+## 集成契约
+
+外部系统通过 Service 与 Provider 隔离。核心产品行为应依赖小型内部接口，而不是直接依赖 Provider SDK，从而让替换 Provider、测试和失败处理都保持明确。
+
+| 分类 | 示例 | 失败行为 |
+| --- | --- | --- |
+| 必需 | 数据库、所选支付 Provider、生产事务邮件 | 校验失败或当前操作失败 |
+| 可选 | 分析、客服聊天、通知、Newsletter | 记录日志或隐藏功能，不影响无关页面 |
+
+## 事务邮件与 Newsletter
+
+模板位于 `src/shared/components/email`。启用邮箱验证前，使用已验证发件域名测试验证邮件和重置邮件。
+
+`NEWSLETTER_PROVIDER` 选择 Resend Audiences 或 Beehiiv。注册时 Newsletter 失败不能回滚账户创建。
+
+## S3 兼容存储
+
+需要认证的上传 API 接受最大 5 MB 的 JPEG、PNG 与 WebP。文件按内容 Hash 生成 Key 并去重。配置 Bucket 凭据、Endpoint、Region 与公开 URL 后，同时测试上传和公开读取。
+
+## 分析与客服
+
+只有公开 ID 存在时，浏览器才加载分析与 Crisp。这些 ID 本来就对用户可见，但服务端 API Key 不可见。PostHog 使用 `VITE_POSTHOG_KEY` 与 `VITE_POSTHOG_HOST`，任一为空即不加载。根据产品运营地区确认用户同意与隐私义务。
+
+## 添加 Provider
+
+1. 定义产品真正需要的最小内部接口。
+2. 在 Route 和 React 组件之外实现 Adapter。
+3. 通过类型化配置选择 Provider。
+4. 添加环境校验和 `.env.example` 说明。
+5. 测试成功、拒绝、超时和重复投递。
+6. 记录安装方式与运维恢复步骤。

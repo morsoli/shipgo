@@ -1,0 +1,99 @@
+---
+title: API Reference
+description: Public, authenticated, admin, cron, content, and webhook endpoints
+icon: Braces
+---
+
+ShipGo API routes live under `src/routes/api`. Application JSON endpoints generally return a common envelope through `Resp.success` or `Resp.error`:
+
+```json
+{ "success": true, "data": {} }
+```
+
+Always validate input and enforce access on the server. Browser UI visibility is not authorization.
+
+## Public endpoints
+
+| Method | Path | Input | Purpose |
+| --- | --- | --- | --- |
+| `GET` | `/api/ping` | none | Check application and database health |
+| `GET` | `/api/search` | `q`, `locale=en|zh` | Search localized docs and blog content |
+| `POST` | `/api/contact` | Contact JSON body | Validate and deliver a contact message |
+| `POST` | `/api/newsletter/subscribe` | `{ "email": "..." }` | Subscribe an email address |
+| `GET` | `/api/credit/packages` | none | List configured purchasable credit packages |
+| `GET/POST` | `/api/auth/*` | Better Auth protocol | Authentication handler |
+
+Example:
+
+```bash
+curl "http://localhost:3000/api/search?q=payment&locale=en"
+```
+
+## Session-aware content
+
+`GET /api/content/markdown` accepts `type=docs|blog`, a safe `slug`, and `locale=en|zh`. Anonymous users can read public content; premium content requires a session with premium access.
+
+```bash
+curl "http://localhost:3000/api/content/markdown?type=docs&slug=deployment/docker&locale=en"
+```
+
+## Authenticated endpoints
+
+These routes require a valid Better Auth session cookie.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/newsletter/status` | Read current user's subscription status |
+| `POST` | `/api/newsletter/unsubscribe` | Unsubscribe current user's email |
+| `POST` | `/api/file/upload` | Upload JPEG, PNG, or WebP up to 5 MB |
+| `POST` | `/api/payment/checkout` | Create plan checkout |
+| `POST` | `/api/payment/credit-checkout` | Create checkout for a configured credit package |
+| `POST` | `/api/payment/portal` | Create customer portal session |
+| `GET` | `/api/payment/status?sessionId=...` | Read completion state for the current user |
+| `GET` | `/api/credit/history` | Read paginated current-user credit history |
+
+The upload endpoint expects `multipart/form-data` with a `file`, optional `folder`, and optional `isPublic`.
+
+## Admin endpoints
+
+All `/api/admin/*` routes require `session.user.role === "admin"`.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/admin/users` | Search and paginate users |
+| `GET` | `/api/admin/users/:userId` | Read one user |
+| `POST` | `/api/admin/users/:userId/ban` | Ban a user |
+| `DELETE` | `/api/admin/users/:userId/ban` | Remove a ban |
+
+Admin demo mode can reject supported mutations as read-only.
+
+## Cron endpoint
+
+`POST /api/cron/credits` requires the exact header `Authorization: Basic <CRON_SECRET>`.
+
+```bash
+curl -X POST \
+  -H "Authorization: Basic $CRON_SECRET" \
+  https://example.com/api/cron/credits
+```
+
+Treat this secret as a password and rotate it if exposed.
+
+## Webhooks
+
+| Method | Path | Signature header |
+| --- | --- | --- |
+| `POST` | `/api/webhooks/stripe` | `stripe-signature` |
+| `POST` | `/api/webhooks/creem` | `creem-signature` |
+
+Webhook handlers require the raw request body for signature verification. Missing or invalid signatures return `400`; retryable processing failures return `500`; accepted duplicate events return `200` without duplicate grants.
+Only the endpoint for the selected `PAYMENT_PROVIDER` accepts events; the other endpoint returns `400`.
+
+## Add an endpoint
+
+1. Create a file under `src/routes/api`.
+2. Add the appropriate auth or admin middleware.
+3. Validate params, query, and body with Zod.
+4. Call a service rather than placing business or SQL logic in the route.
+5. Return a stable response and appropriate HTTP status.
+6. Add tests for validation, authorization, success, and provider failure.

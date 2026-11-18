@@ -1,0 +1,72 @@
+---
+title: Operations
+description: Verify releases, inspect data, repair payments, and roll back safely
+icon: Wrench
+---
+
+## Release verification
+
+```bash
+pnpm verify:release
+pnpm db:check-compat
+pnpm test:integration
+pnpm smoke:release
+```
+
+Useful operational commands:
+
+- `pnpm users:query` and `pnpm contacts:query` inspect application data.
+- `pnpm payments:repair` reconciles supported payment inconsistencies.
+- `pnpm distribute-credits` runs credit distribution manually.
+
+Deploy immutable images. To roll back, route traffic to the previous image and
+reuse the compatible database. Reconcile webhook events before a second release.
+
+## Release checklist
+
+1. Run `pnpm check`, `pnpm deps:check`, `pnpm typecheck`, `pnpm test`, and
+   `pnpm build`.
+2. Run `pnpm db:check-compat` against a production database copy.
+3. Replay signed Stripe and Creem webhook fixtures against staging.
+4. Back up production immediately before the cutover.
+5. Verify `/api/ping`, login, billing, and one idempotent webhook replay after
+   deployment.
+
+Rollback should not require database changes because ShipGo avoids destructive
+schema changes. Investigate logs and reconcile webhook events before attempting
+another release.
+
+## What each release command checks
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm check` | Biome formatting, lint, and source checks |
+| `pnpm deps:check` | Unused or missing direct dependencies |
+| `pnpm typecheck` | Content compilation and TypeScript |
+| `pnpm test` | Unit and behavior tests |
+| `pnpm build` | Production browser and server bundle |
+| `pnpm test:integration` | Repository behavior against `TEST_DATABASE_URL` |
+| `pnpm db:check-compat` | Required core tables, columns, and indexes |
+| `pnpm smoke:release` | Running deployment routes, redirects, and webhook rejection |
+
+`pnpm verify:release` combines source-level gates. Compatibility, integration, and smoke tests require explicit external targets and run separately.
+
+## Operational scripts
+
+```bash
+pnpm users:query -- example@example.com
+pnpm contacts:query -- example@example.com
+pnpm payments:repair
+pnpm payments:repair -- --apply
+pnpm distribute-credits
+```
+
+Run data-changing scripts from a trusted operator environment with an explicit `DATABASE_URL`. Capture the command, operator, target environment, and output.
+
+## Incident sequence
+
+1. Stop harmful writes or route traffic away from the bad release.
+2. Preserve logs, webhook IDs, release version, and database state.
+3. Roll back the application image when the schema remains compatible.
+4. Reconcile payments, credits, emails, and provider events.
+5. Fix and verify against staging before restoring normal traffic.

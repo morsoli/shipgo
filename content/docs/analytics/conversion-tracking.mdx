@@ -1,0 +1,48 @@
+---
+title: Conversion Tracking
+description: Measure signups, purchases, and key actions with conversion pixels and events
+---
+
+Conversion tracking connects user actions to marketing campaigns so you can
+measure return on ad spend and optimize acquisition channels.
+
+## What to track
+
+| Action | Typical trigger | Value |
+| --- | --- | --- |
+| Signup | Registration completed | User LTV estimate |
+| Purchase | Checkout webhook confirmed | Revenue |
+| Subscription start | First successful payment | MRR contribution |
+| Feature activation | First core action | Engagement signal |
+| Contact form | Form submitted | Lead value |
+
+## Implementation approaches
+
+### Client-side events
+
+Send conversion events from the browser after the user completes an action. This
+is the simplest approach but may be blocked by ad blockers or privacy settings.
+
+### Server-side events
+
+Send conversion events from the server after validating the action. This is more
+reliable because it does not depend on the user's browser environment.
+
+### Webhook forwarding
+
+Forward payment webhooks to ad platform conversion APIs. This ensures that only
+confirmed payments count as conversions.
+
+## Provider-specific setup
+
+- **Google Ads**: Use the Google Ads conversion pixel or gtag conversion events.
+- **Meta (Facebook) Pixel**: Add the Meta Pixel base code and standard events.
+- **Twitter/X Pixel**: Implement the Twitter conversion tracking tag.
+- **LinkedIn Insight Tag**: Add the Insight Tag and conversion events.
+- **TikTok Pixel**: Implement the TikTok pixel and custom events.
+
+## Official documentation
+
+- [Google Ads Conversion Tracking](https://support.google.com/google-ads/answer/6095821)
+- [Meta Conversions API](https://developers.facebook.com/docs/marketing-api/conversions-api/)
+- [LinkedIn Conversion Tracking](https://www.linkedin.com/help/campaign-manager/answer/a1442169)

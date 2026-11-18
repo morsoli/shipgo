@@ -1,0 +1,99 @@
+---
+title: Troubleshooting
+description: Diagnose common setup, database, authentication, build, and provider problems
+icon: CircleHelp
+---
+
+Start with the smallest observable boundary. Check the process, then `/api/ping`, then the failing feature, then the external provider.
+
+## Application does not start
+
+```bash
+node --version
+pnpm --version
+pnpm content:build
+pnpm typecheck
+```
+
+Use Node.js 24 and the pnpm version selected in `package.json`. If generated content is stale, remove `.source` and rerun `pnpm content:build`.
+
+## Port 3000 is already in use
+
+Find the process using the port or stop an existing ShipGo server. The optional TanStack Devtools event bus can also collide when several projects use port `42069`; disable it or change `TANSTACK_DEVTOOLS_EVENT_BUS_PORT`.
+
+## Database health check returns 503
+
+```bash
+curl -i http://localhost:3000/api/ping
+docker compose ps
+docker compose logs db
+```
+
+- `database: "not_configured"` means `DATABASE_URL` is missing.
+- `database: "unavailable"` means the URL exists but the query failed.
+- Use `db` as hostname inside Compose and `localhost` from the host.
+- Confirm migrations were run with `pnpm db:migrate`.
+
+## Login page says authentication is not configured
+
+Confirm `DATABASE_URL` and `BETTER_AUTH_SECRET` exist, then restart the server. For production, the auth secret must contain at least 32 characters.
+
+OAuth buttons require the enable flag, client ID, and client secret. A provider can still reject login when its callback URL does not exactly match the deployed origin.
+
+## Registration succeeds but email is not delivered
+
+Local quick start disables verification. For real delivery:
+
+1. Verify the sender domain with Resend.
+2. Set `EMAIL_FROM` to a verified sender.
+3. Set a valid `RESEND_API_KEY`.
+4. Preview templates with `pnpm email:preview`.
+5. Inspect server logs for the provider response.
+
+## Payment checkout fails
+
+- Confirm `PAYMENT_PROVIDER` selects the intended provider.
+- Confirm the price ID exists in the provider and matches the configured mode.
+- Confirm checkout URLs use the same origin as `APP_URL`.
+- Confirm test keys are paired with test price IDs.
+- Inspect webhook delivery logs after checkout.
+
+Payment completion depends on signed webhooks. A successful hosted checkout does not by itself prove that the local payment record and credits were updated.
+
+## File upload fails
+
+The upload endpoint requires authentication and configured S3-compatible storage. It accepts JPEG, PNG, or WebP up to 5 MB. Confirm bucket permissions, endpoint, region, credentials, and public URL.
+
+## Documentation page or translation is missing
+
+Run:
+
+```bash
+pnpm content:build
+```
+
+Ensure English files use `.mdx`, Chinese files use `.zh.mdx`, and the page slug appears in `content/docs/meta.json` and `content/docs/meta.zh.json`.
+
+## Docker image uses old public configuration
+
+Values prefixed with `VITE_` are embedded at build time. Pass updated build arguments and rebuild:
+
+```bash
+docker compose up --build -d app
+```
+
+Changing only runtime environment variables cannot alter an already-built browser bundle.
+
+## Release verification fails
+
+Run the failing command separately and fix its first actionable error:
+
+```bash
+pnpm check
+pnpm deps:check
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+Do not suppress a release gate without understanding the behavior it protects.

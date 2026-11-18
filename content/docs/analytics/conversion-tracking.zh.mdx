@@ -1,0 +1,45 @@
+---
+title: 转化跟踪
+description: 使用转化像素和事件测量注册、购买与关键行为
+---
+
+转化跟踪将用户行为与营销活动关联，以便衡量广告支出回报并优化获客渠道。
+
+## 跟踪内容
+
+| 行为 | 典型触发点 | 价值 |
+| --- | --- | --- |
+| 注册 | 注册完成 | 用户 LTV 估算 |
+| 购买 | 结账 Webhook 确认 | 收入 |
+| 订阅开始 | 首次成功支付 | MRR 贡献 |
+| 功能激活 | 首次核心行为 | 参与信号 |
+| 联系表单 | 表单提交 | 线索价值 |
+
+## 实现方式
+
+### 客户端事件
+
+用户完成行为后从浏览器发送转化事件。这是最简单的方式，但可能被广告拦截
+或隐私设置阻止。
+
+### 服务端事件
+
+验证行为后从服务器发送转化事件。这更可靠，因为它不依赖用户的浏览器环境。
+
+### Webhook 转发
+
+将支付 Webhook 转发到广告平台转化 API。这确保只有已确认支付才计为转化。
+
+## Provider 专属设置
+
+- **Google Ads**：使用 Google Ads 转化像素或 gtag 转化事件。
+- **Meta（Facebook）Pixel**：添加 Meta Pixel 基础代码和标准事件。
+- **Twitter/X Pixel**：实现 Twitter 转化跟踪标签。
+- **LinkedIn Insight Tag**：添加 Insight Tag 和转化事件。
+- **TikTok Pixel**：实现 TikTok Pixel 和自定义事件。
+
+## 官方文档
+
+- [Google Ads 转化跟踪](https://support.google.com/google-ads/answer/6095821)
+- [Meta Conversions API](https://developers.facebook.com/docs/marketing-api/conversions-api/)
+- [LinkedIn 转化跟踪](https://www.linkedin.com/help/campaign-manager/answer/a1442169)

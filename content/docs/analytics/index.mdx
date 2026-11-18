@@ -1,0 +1,46 @@
+---
+title: Analytics
+description: Configure analytics, tracking, and conversion measurement services
+icon: BarChart3
+index: true
+---
+
+ShipGo supports multiple analytics and tracking providers. Each loads only when
+its public identifier is configured, so missing optional integrations do not
+prevent application startup.
+
+## Available providers
+
+| Provider | Type | Environment variable |
+| --- | --- | --- |
+| Google Analytics | Traffic analysis | `VITE_GA_MEASUREMENT_ID` |
+| Umami | Privacy-friendly analytics | `VITE_UMAMI_WEBSITE_ID`, `VITE_UMAMI_SCRIPT_URL` |
+| Plausible | Lightweight analytics | `VITE_PLAUSIBLE_DOMAIN` |
+| OpenPanel | Product analytics | `VITE_OPENPANEL_CLIENT_ID` |
+| Microsoft Clarity | Session recordings | `VITE_CLARITY_PROJECT_ID` |
+| Ahrefs | SEO tracking | `VITE_AHREFS_SCRIPT_URL` |
+| Datafast | Performance analytics | `VITE_DATAFAST_SCRIPT_URL` |
+| Seline | Conversion analytics | `VITE_SELINE_SCRIPT_URL` |
+
+Only variables prefixed with `VITE_` are exposed to the browser. Server-side API
+keys for analytics APIs, if needed, should remain server-only.
+
+## Configuration principle
+
+1. Create an account with the chosen provider.
+2. Obtain the public site ID or tracking code.
+3. Add the corresponding `VITE_` variable to `.env.local`.
+4. Restart the application.
+5. Verify that the tracking script loads in the browser devtools network panel.
+
+## Conversion tracking
+
+Conversion tracking connects user actions (signups, purchases, feature usage) to
+marketing campaigns. See [Conversion Tracking](/docs/analytics/conversion-tracking)
+for provider-specific setup.
+
+## Privacy and consent
+
+Confirm user consent and privacy obligations for your product's operating
+regions before enabling analytics. Some providers handle consent automatically;
+others require explicit opt-in integration.

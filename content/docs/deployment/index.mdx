@@ -1,0 +1,87 @@
+---
+title: Deployment
+description: Build and deploy ShipGo with Node.js and Docker
+icon: Cloud
+index: true
+---
+
+ShipGo builds to a Nitro Node.js server:
+
+```bash
+pnpm build
+pnpm start
+```
+
+Docker deployment:
+
+```bash
+docker build --build-arg VITE_APP_URL=https://shipgo.example -t shipgo:release .
+docker run --rm -p 3000:3000 --env-file .env shipgo:release
+curl --fail http://localhost:3000/api/ping
+SMOKE_BASE_URL=http://localhost:3000 pnpm smoke:release
+```
+
+The production image is multi-stage, runs as the non-root `node` user, and
+includes a container health check. Set `APP_URL=https://shipgo.example` in the
+runtime environment and pass the same value as the `VITE_APP_URL` build
+argument.
+
+## Release
+
+1. Run `pnpm typecheck`, `pnpm test`, and `pnpm build`.
+2. Test Stripe and Creem webhook fixtures against staging.
+3. Run database compatibility checks against a production copy.
+4. Back up production and deploy the immutable image.
+5. Verify `/api/ping`, login, billing, and one idempotent webhook replay.
+
+## Rollback
+
+Route traffic to the previous immutable image. Because ShipGo does not require
+destructive schema changes, the previous application can reuse the same
+database. Investigate logs and reconcile webhook events before attempting a
+second release.
+
+## Deployment model
+
+`pnpm build` creates a portable Nitro Node.js server in `.output`. The runtime command is:
+
+```bash
+node .output/server/index.mjs
+```
+
+Any platform that can run Node.js 24, supply environment variables, expose an HTTP port, and reach PostgreSQL can host ShipGo.
+
+## Build-time and runtime configuration
+
+`VITE_` variables are embedded into browser assets during the build. Server-only variables are read at runtime. Build with the correct public origin, locales, and currency; run with matching `APP_URL` and provider secrets; and apply migrations before routing traffic to the new version.
+
+Do not reuse one image across environments when their `VITE_` configuration differs.
+
+## Docker production sequence
+
+```bash
+docker build \
+  --build-arg VITE_APP_URL=https://app.example.com \
+  --build-arg VITE_DEFAULT_LOCALE=en \
+  --build-arg VITE_ENABLED_LOCALES=en,zh \
+  --build-arg VITE_CURRENCY=USD \
+  -t registry.example.com/shipgo:2026-06-15 .
+
+DATABASE_URL="$PRODUCTION_DATABASE_URL" pnpm db:migrate
+
+docker run -d --name shipgo -p 3000:3000 \
+  --env-file .env.production \
+  registry.example.com/shipgo:2026-06-15
+```
+
+The image runs as the non-root `node` user and includes a health check against `/api/ping`.
+
+## Platform requirements
+
+- PostgreSQL must be reachable over a secure connection.
+- Payment providers must be able to reach public webhook routes.
+- Uploads require S3-compatible storage; the application does not rely on persistent local files.
+- A scheduler should call credit maintenance when credits are enabled.
+- Logs must be retained long enough to investigate webhooks and releases.
+
+After deployment, verify health, registration/login, a protected page, email, payment webhook processing, customer portal, file upload, localized routes, sitemap, and analytics consent behavior.

@@ -1,0 +1,100 @@
+import { type Dictionary, t } from "intlayer"
+
+export default {
+  key: "user-dashboard",
+  content: {
+    menu: {
+      settings: t({ en: "Settings", zh: "设置" }),
+      account: t({ en: "Account", zh: "账户" }),
+      billing: t({ en: "Billing", zh: "订阅管理" }),
+      usage: t({ en: "Usage", zh: "使用情况" }),
+      topUp: t({ en: "Top Up", zh: "充值" }),
+    },
+    credits: {
+      title: t({ en: "Credits", zh: "积分" }),
+      balance: t({ en: "Current Balance", zh: "当前余额" }),
+      upgrade: t({ en: "Upgrade", zh: "升级" }),
+      totalCredits: t({ en: "Total Credits", zh: "总积分" }),
+      purchasedCredits: t({
+        en: "Available Credits",
+        zh: "可用积分",
+      }),
+    },
+    packages: {
+      title: t({ en: "Credit Packages", zh: "积分包" }),
+      credits: t({ en: "credits", zh: "积分" }),
+      validFor: t({ en: "Valid for {days} days", zh: "有效期 {days} 天" }),
+      neverExpires: t({ en: "Never expires", zh: "永不过期" }),
+      buy: t({ en: "Buy Now", zh: "立即购买" }),
+      processing: t({ en: "Processing...", zh: "处理中..." }),
+      empty: t({ en: "No credit packages available", zh: "暂无可用积分包" }),
+      emptyDesc: t({ en: "Please check back later", zh: "请稍后再试" }),
+      subscribeToPurchase: t({ en: "Subscribe to purchase credits", zh: "订阅后可购买积分" }),
+    },
+    insufficientCredits: {
+      title: t({ en: "Insufficient Credits", zh: "积分不足" }),
+      description: t({
+        en: "You need {required} credits but only have {current}. Purchase more credits to continue.",
+        zh: "您需要 {required} 积分，但只有 {current} 积分。请购买更多积分以继续。",
+      }),
+      currentBalance: t({
+        en: "Current balance: {credits} credits",
+        zh: "当前余额：{credits} 积分",
+      }),
+      recommended: t({ en: "Recommended", zh: "推荐" }),
+      cancel: t({ en: "Cancel", zh: "取消" }),
+    },
+    history: {
+      title: t({ en: "Usage", zh: "使用情况" }),
+      description: t({
+        en: "View your credit transaction history",
+        zh: "查看您的积分变动历史",
+      }),
+      empty: t({ en: "No credit records", zh: "暂无积分记录" }),
+      time: t({ en: "Time", zh: "时间" }),
+      type: t({ en: "Type", zh: "类型" }),
+      change: t({ en: "Change", zh: "积分变动" }),
+      totalRecords: t({ en: "{count} records", zh: "共 {count} 条记录" }),
+    },
+    billing: {
+      title: t({ en: "Billing", zh: "订阅管理" }),
+      currentPlan: t({ en: "Current Plan", zh: "当前方案" }),
+      status: t({ en: "Status", zh: "状态" }),
+      billingCycle: t({ en: "Billing Cycle", zh: "计费周期" }),
+      currentPeriodEnd: t({ en: "Current Period Ends", zh: "当前周期结束" }),
+      cancelSubscription: t({ en: "Cancel Subscription", zh: "取消订阅" }),
+      cancelConfirmTitle: t({ en: "Cancel Subscription", zh: "确认取消订阅" }),
+      cancelConfirmDesc: t({
+        en: "Your subscription will remain active until the end of the current billing period. After that, you will lose access to premium features.",
+        zh: "您的订阅将在当前计费周期结束前保持有效。周期结束后，您将失去高级功能的访问权限。",
+      }),
+      cancelConfirmAction: t({ en: "Confirm Cancel", zh: "确认取消" }),
+      cancelConfirmCancel: t({ en: "Keep Subscription", zh: "保留订阅" }),
+      canceling: t({ en: "Canceling...", zh: "取消中..." }),
+      scheduledCancel: t({
+        en: "Your subscription will end on {date}",
+        zh: "您的订阅将于 {date} 到期取消",
+      }),
+      statusActive: t({ en: "Active", zh: "有效" }),
+      statusTrialing: t({ en: "Trial", zh: "试用中" }),
+      statusCanceled: t({ en: "Canceled", zh: "已取消" }),
+      monthly: t({ en: "Monthly", zh: "月付" }),
+      yearly: t({ en: "Yearly", zh: "年付" }),
+      noSubscription: t({ en: "No active subscription", zh: "暂无有效订阅" }),
+      noSubscriptionDesc: t({
+        en: "Upgrade to a paid plan to unlock premium features.",
+        zh: "升级到付费方案以解锁高级功能。",
+      }),
+      upgrade: t({ en: "Upgrade", zh: "升级" }),
+    },
+    creditTypes: {
+      signup_bonus: t({ en: "Signup Bonus", zh: "注册赠送" }),
+      free_monthly_grant: t({ en: "Free Monthly Grant", zh: "免费版月度积分" }),
+      credit_pack_purchase: t({ en: "Credit Pack Purchase", zh: "积分包购买" }),
+      subscription_cycle_grant: t({ en: "Subscription Renewal", zh: "订阅周期发放" }),
+      lifetime_monthly_grant: t({ en: "Lifetime Monthly Grant", zh: "终身版月度发放" }),
+      credit_consumption: t({ en: "Credit Usage", zh: "积分消耗" }),
+      credit_expiration: t({ en: "Expired", zh: "积分过期" }),
+    },
+  },
+} satisfies Dictionary

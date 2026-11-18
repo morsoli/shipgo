@@ -1,0 +1,9 @@
+{
+  "title": "支付与积分",
+  "icon": "CreditCard",
+  "pages": [
+    "index",
+    "stripe",
+    "creem"
+  ]
+}

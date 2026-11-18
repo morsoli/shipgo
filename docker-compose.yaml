@@ -1,0 +1,37 @@
+name: shipgo
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: shipgo_local_password
+      POSTGRES_DB: shipgo
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shipgo"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    ports:
+      - "5432:5432"
+
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        VITE_APP_URL: http://localhost:3000
+        VITE_DEFAULT_LOCALE: en
+        VITE_ENABLED_LOCALES: en,zh
+        VITE_CURRENCY: USD
+    restart: unless-stopped
+    env_file:
+      - .env.local
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

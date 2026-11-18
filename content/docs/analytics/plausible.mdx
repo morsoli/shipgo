@@ -1,0 +1,30 @@
+---
+title: Plausible
+description: Add Plausible lightweight analytics to ShipGo
+---
+
+Plausible is a lightweight, open-source analytics tool that respects user
+privacy and loads quickly.
+
+## Configuration
+
+1. Create an account on [Plausible](https://plausible.io/) or self-host.
+2. Add your domain to Plausible and copy the site domain.
+3. Add it to `.env.local`:
+
+```dotenv
+VITE_PLAUSIBLE_DOMAIN=yourdomain.com
+```
+
+4. Restart the application.
+
+## What is tracked
+
+- Page views and unique visitors.
+- Goal completions and funnel analysis.
+- Country, device, and browser breakdowns.
+
+## Official documentation
+
+- [Plausible Docs](https://plausible.io/docs)
+- [Plausible Self-Hosting](https://plausible.io/docs/self-hosting)

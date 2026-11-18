@@ -1,0 +1,145 @@
+---
+title: Docker
+description: Start ShipGo and PostgreSQL locally with Docker Compose
+---
+
+This path is recommended for a first evaluation. Docker runs the same Node.js
+production output that you can later deploy, while PostgreSQL data is kept in a
+named volume.
+
+## Prerequisites
+
+- Docker Desktop or Docker Engine with Compose v2
+- Node.js 24
+- Corepack, included with Node.js
+- Free local ports `3000` and `5432`
+
+Confirm the tools:
+
+```bash
+docker --version
+docker compose version
+node --version
+corepack --version
+```
+
+## 1. Install dependencies
+
+From the `shipgo` directory:
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+```
+
+Dependencies are installed on the host because Drizzle migrations and
+verification scripts run through pnpm.
+
+## 2. Prepare local configuration
+
+The repository includes `.env.example` and a local-ready `.env.local`. If
+`.env.local` is missing, create it:
+
+```bash
+cp .env.example .env.local
+```
+
+The default values are intentionally suitable only for local development.
+External services use placeholders. Before a production deployment, replace at
+least:
+
+- `APP_URL`, `VITE_APP_URL`
+- `DATABASE_URL`
+- `BETTER_AUTH_SECRET`
+- `CRON_SECRET`
+- the selected payment provider's API and webhook secrets
+- `RESEND_API_KEY` and `EMAIL_FROM`
+
+See [Environment Variables](/docs/environment-variables) for the complete
+reference.
+
+## 3. Start PostgreSQL
+
+```bash
+docker compose up -d db
+docker compose ps
+```
+
+Wait until the `db` service reports `healthy`. Compose exposes PostgreSQL at
+`localhost:5432`, while containers address it as `db:5432`.
+
+## 4. Apply database migrations
+
+`.env.local` uses the container hostname `db`. A host-side migration therefore
+overrides only the hostname:
+
+```bash
+DATABASE_URL=postgresql://postgres:shipgo_local_password@localhost:5432/shipgo pnpm db:migrate
+```
+
+Expected result: Drizzle reports that migrations were applied successfully.
+Compose never runs migrations automatically.
+
+## 5. Build and start ShipGo
+
+```bash
+docker compose up --build -d app
+docker compose ps
+```
+
+Open [http://localhost:3000](http://localhost:3000). The first Docker build
+takes longer because it installs dependencies and creates the production bundle.
+
+## 6. Verify the application
+
+```bash
+curl --fail http://localhost:3000/api/ping
+```
+
+The response should contain:
+
+```json
+{
+  "ok": true,
+  "service": "shipgo",
+  "database": "connected"
+}
+```
+
+Then verify these user flows:
+
+1. Open `/register` and create a local account.
+2. Confirm that registration redirects to the dashboard.
+3. Open `/settings/profile`, `/settings/security`, and `/settings/api-keys`.
+4. Open `/pricing`, `/blog`, and `/docs`.
+5. Switch between English and Chinese.
+
+Local email verification is disabled by default, so signup does not depend on a
+real email provider.
+
+## Daily commands
+
+```bash
+# Follow application logs
+docker compose logs -f app
+
+# Rebuild after source or build-time configuration changes
+docker compose up --build -d app
+
+# Stop services but keep database data
+docker compose down
+
+# Stop services and permanently delete local database data
+docker compose down -v
+```
+
+## Build-time variables
+
+The Docker image embeds variables prefixed with `VITE_` during its build. If you
+change the public URL, enabled locales, default locale, or currency, update
+`docker-compose.yaml` build arguments and rebuild the image.
+
+## Next step
+
+For fast hot reload, follow the development setup in
+[Build Your First Application](/docs/first-application).

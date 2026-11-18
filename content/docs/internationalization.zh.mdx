@@ -1,0 +1,78 @@
+---
+title: 国际化
+description: 配置语言、路由、UI 字典、内容与 SEO
+icon: Languages
+---
+
+ShipGo 使用 Intlayer 管理 UI 字典，使用 Fumadocs 管理多语言内容。
+
+```bash
+VITE_DEFAULT_LOCALE=en
+VITE_ENABLED_LOCALES=en,zh
+```
+
+默认语言不使用 URL 前缀，其他启用语言使用 `/zh` 等前缀。语言配置集中在
+`locale.config.ts`，Intlayer、Fumadocs、路由、canonical、hreflang 与 Sitemap
+都会读取同一配置。
+
+UI 翻译放在 `src/config/locale/*.content.ts`。默认语言 MDX 使用 `page.mdx`，
+中文使用 `page.zh.mdx`。修改启用语言后需要重启开发服务器。
+
+## 语言路由如何工作
+
+可选的 `{-$locale}` 路由段包裹本地化页面。默认语言为 `en`、启用 `en,zh` 时：
+
+| 内容 | 英文 URL | 中文 URL |
+| --- | --- | --- |
+| 首页 | `/` | `/zh` |
+| 定价 | `/pricing` | `/zh/pricing` |
+| 文档 | `/docs` | `/zh/docs` |
+| 登录 | `/login` | `/zh/login` |
+
+`/api` 下的接口不带语言前缀。接口支持本地化结果时，需要显式传递语言，例如 `/api/search?q=billing&locale=en`。
+
+## 翻译界面文本
+
+Intlayer 字典位于 `src/config/locale`。每个字典有稳定的 `key`，本地化字段使用 `t`：
+
+```ts
+import { type Dictionary, t } from "intlayer"
+
+export default {
+  key: "feature-page",
+  content: {
+    title: t({ en: "Features", zh: "功能" }),
+  },
+} satisfies Dictionary
+```
+
+组件按照现有 `useIntlayer` 模式使用字典。组件依赖字典 Key，因此应保持其稳定。
+
+## 翻译 MDX 内容
+
+本地化内容集合使用文件后缀：
+
+```text
+content/docs/example.mdx
+content/docs/example.zh.mdx
+content/blog/launch.mdx
+content/blog/launch.zh.mdx
+```
+
+不同语言应保持 Slug 和 Frontmatter 结构一致。翻译缺失时，根据集合和 Route 的行为，内容可能回退或不显示，因此必须验证两个 URL。
+
+## 添加其他语言
+
+添加语言不能只修改 `VITE_ENABLED_LOCALES`，还需要：
+
+1. 扩展路由与 Intlayer 使用的语言定义。
+2. 为所有必需字典添加翻译。
+3. 为该语言必须存在的公开内容添加本地化 MDX。
+4. 扩展当前枚举语言值的 API 校验。
+5. 重新构建内容，并检查 Canonical URL、`hreflang`、Sitemap 和默认语言重定向。
+
+添加语言前搜索仓库中的 `z.enum(["en", "zh"])`，这些 API Schema 必须有意扩展。
+
+## SEO 行为
+
+本地化公开页面会生成 Canonical 与 `hreflang` 元信息。Sitemap 包含启用语言，默认语言保持无前缀。构建生产产物前，应确保 `APP_URL`、`VITE_APP_URL`、默认语言和启用语言相互一致。

@@ -1,0 +1,62 @@
+---
+title: 数据库
+description: 管理 PostgreSQL Schema、迁移与兼容检查
+icon: Database
+index: true
+---
+
+ShipGo 使用 Drizzle ORM 与 PostgreSQL。认证和业务数据包含八张兼容敏感表：
+`user`、`session`、`account`、`verification`、`apikey`、`shipgo_billing_order`、
+`shipgo_credit_wallet` 与 `shipgo_credit_ledger`。
+
+```bash
+pnpm db:generate
+pnpm db:migrate
+pnpm db:studio
+pnpm db:check-compat
+```
+
+未完成备份验证前，不要在生产执行破坏性迁移。切换前应对近期生产副本运行
+`db:check-compat`。积分扣减通过事务、用户级 advisory lock 与 FIFO 语义保证一致性。
+
+## 切换验证
+
+1. 将近期生产备份恢复到隔离的 PostgreSQL 实例。
+2. 将 `DATABASE_URL` 指向该副本。
+3. 运行 `pnpm db:check-compat`。
+4. 启动应用并验证现有用户、会话、API Key、支付、余额和积分流水。
+5. 手动对比生成的 Schema 变更，拒绝任何破坏性语句。
+
+`db:push` 只适合开发便利场景，不能用于生产。正式切换前请立即备份数据库。
+
+## Schema 归属
+
+`src/db/schema.ts` 导出 Drizzle Kit 发现的 Schema。
+
+| 文件 | 数据表 |
+| --- | --- |
+| `src/db/auth.schema.ts` | `user`、`session`、`account`、`verification`、`apikey` |
+| `src/db/app.schema.ts` | `shipgo_billing_order`、`shipgo_credit_wallet`、`shipgo_credit_ledger` |
+
+认证表需要符合 Better Auth 兼容要求。修改其字段前，应检查 Better Auth 迁移与 ShipGo 兼容性检查。
+
+## 添加产品数据表
+
+1. 在合适的 `src/db/*.schema.ts` 文件中定义数据表。
+2. 从 `src/db/schema.ts` 导出。
+3. 在 `src/repositories` 添加 Repository 函数。
+4. 在 `src/services` 添加业务行为。
+5. 使用 `pnpm db:generate` 生成并人工检查迁移。
+6. 使用 `pnpm db:migrate` 在可丢弃数据库执行迁移，然后运行测试。
+
+Schema 代码和生成的迁移文件必须一起提交。
+
+## 迁移纪律
+
+- 优先使用增量迁移，并单独回填数据。
+- 不要在停止读取旧字段的同一版本中删除该字段。
+- 滚动部署期间保持应用兼容。
+- 执行迁移前立即备份生产数据库。
+- SQL 放在 Repository，多步骤行为放在 Service，不要放在 Route 或 React 组件。
+
+支付和积分写入必须使用事务与幂等边界，因为 Webhook 可能重复投递。

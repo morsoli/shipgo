@@ -1,0 +1,136 @@
+---
+title: Docker
+description: 使用 Docker Compose 在本地启动 ShipGo 与 PostgreSQL
+---
+
+该路径适合首次评估。Docker 运行的是与生产环境相同的 Node.js 输出，PostgreSQL
+数据保存在命名卷中。
+
+## 前置要求
+
+- Docker Desktop 或带有 Compose v2 的 Docker Engine
+- Node.js 24
+- Node.js 自带的 Corepack
+- 空闲的本地端口 `3000` 和 `5432`
+
+确认工具可用：
+
+```bash
+docker --version
+docker compose version
+node --version
+corepack --version
+```
+
+## 1. 安装依赖
+
+在 `shipgo` 目录执行：
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+```
+
+需要在宿主机安装依赖，因为 Drizzle 迁移和验证脚本通过 pnpm 执行。
+
+## 2. 准备本地配置
+
+仓库包含 `.env.example` 和可直接用于本地环境的 `.env.local`。如果 `.env.local`
+不存在，执行：
+
+```bash
+cp .env.example .env.local
+```
+
+默认值有意只适合本地开发，外部服务使用占位值。生产部署前至少替换：
+
+- `APP_URL`、`VITE_APP_URL`
+- `DATABASE_URL`
+- `BETTER_AUTH_SECRET`
+- `CRON_SECRET`
+- 所选支付 Provider 的 API 与 Webhook 密钥
+- `RESEND_API_KEY` 与 `EMAIL_FROM`
+
+完整说明见[环境变量](/zh/docs/environment-variables)。
+
+## 3. 启动 PostgreSQL
+
+```bash
+docker compose up -d db
+docker compose ps
+```
+
+等待 `db` 服务显示为 `healthy`。Compose 把 PostgreSQL 暴露到 `localhost:5432`，
+容器之间则使用 `db:5432`。
+
+## 4. 执行数据库迁移
+
+`.env.local` 使用容器主机名 `db`，因此从宿主机执行迁移时只需覆盖主机名：
+
+```bash
+DATABASE_URL=postgresql://postgres:shipgo_local_password@localhost:5432/shipgo pnpm db:migrate
+```
+
+预期结果：Drizzle 报告迁移执行成功。Compose 永远不会自动执行迁移。
+
+## 5. 构建并启动 ShipGo
+
+```bash
+docker compose up --build -d app
+docker compose ps
+```
+
+打开 [http://localhost:3000](http://localhost:3000)。第一次 Docker 构建需要安装
+依赖并创建生产 Bundle，因此耗时会更长。
+
+## 6. 验证应用
+
+```bash
+curl --fail http://localhost:3000/api/ping
+```
+
+响应应包含：
+
+```json
+{
+  "ok": true,
+  "service": "shipgo",
+  "database": "connected"
+}
+```
+
+然后检查以下用户流程：
+
+1. 打开 `/register` 并创建本地账户。
+2. 确认注册后跳转到 Dashboard。
+3. 打开 `/settings/profile`、`/settings/security` 和 `/settings/api-keys`。
+4. 打开 `/pricing`、`/blog` 和 `/docs`。
+5. 在中英文之间切换。
+
+本地默认关闭邮箱验证，因此注册不依赖真实邮件服务。
+
+## 日常命令
+
+```bash
+# 跟踪应用日志
+docker compose logs -f app
+
+# 修改源码或构建时配置后重新构建
+docker compose up --build -d app
+
+# 停止服务但保留数据库数据
+docker compose down
+
+# 停止服务并永久删除本地数据库数据
+docker compose down -v
+```
+
+## 构建时变量
+
+Docker 镜像在构建时写入以 `VITE_` 开头的变量。如果修改公开 URL、启用语言、默认
+语言或货币，需要更新 `docker-compose.yaml` 的构建参数并重新构建镜像。
+
+## 下一步
+
+如需快速热更新，请直接参考[构建第一个应用](/zh/docs/first-application)中的开发
+环境设置。

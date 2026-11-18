@@ -1,0 +1,26 @@
+<svg width="800" height="520" viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="520" rx="24" fill="#F8FAFC"/>
+  <rect x="36" y="36" width="728" height="448" rx="18" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+  <text x="72" y="90" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="700">ShipGo Billing &amp; Credit Ledger</text>
+  <text x="72" y="118" fill="#64748B" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Stripe &amp; Creem Webhooks • Idempotent Orders • FIFO Credit Expiration</text>
+  <rect x="72" y="152" width="204" height="288" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="96" y="192" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">Free</text>
+  <text x="96" y="228" fill="#2563EB" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="700">$0</text>
+  <text x="96" y="264" fill="#475569" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">50 credits / month</text>
+  <rect x="96" y="294" width="156" height="12" rx="6" fill="#E2E8F0"/>
+  <rect x="96" y="320" width="128" height="12" rx="6" fill="#E2E8F0"/>
+  <rect x="298" y="152" width="204" height="288" rx="14" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+  <text x="322" y="192" fill="#1E3A8A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">Pro</text>
+  <text x="322" y="228" fill="#1D4ED8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="700">$19/mo</text>
+  <text x="322" y="264" fill="#1E40AF" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">1,000 credits / month</text>
+  <rect x="322" y="294" width="156" height="12" rx="6" fill="#BFDBFE"/>
+  <rect x="322" y="320" width="140" height="12" rx="6" fill="#BFDBFE"/>
+  <rect x="322" y="376" width="156" height="40" rx="8" fill="#2563EB"/>
+  <text x="368" y="401" fill="#FFFFFF" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="600">Subscribe</text>
+  <rect x="524" y="152" width="204" height="288" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="548" y="192" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">Lifetime</text>
+  <text x="548" y="228" fill="#059669" font-family="ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="700">$499</text>
+  <text x="548" y="264" fill="#475569" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Permanent Pro access</text>
+  <rect x="548" y="294" width="156" height="12" rx="6" fill="#E2E8F0"/>
+  <rect x="548" y="320" width="132" height="12" rx="6" fill="#E2E8F0"/>
+</svg>

@@ -1,0 +1,80 @@
+---
+title: PostgreSQL
+description: Run PostgreSQL locally with Docker Compose or a native installation
+---
+
+PostgreSQL is the primary database for ShipGo. Authentication and business data
+use eight compatibility-sensitive tables: `user`, `session`, `account`,
+`verification`, `apikey`, `shipgo_billing_order`, `shipgo_credit_wallet`, and
+`shipgo_credit_ledger`.
+
+## Docker Compose (recommended)
+
+The repository includes a `docker-compose.yaml` with a PostgreSQL service. This
+is the fastest way to get a local database:
+
+```bash
+docker compose up -d db
+docker compose ps
+```
+
+Wait until the `db` service reports `healthy`. The default connection URL is:
+
+```
+postgresql://postgres:shipgo_local_password@localhost:5432/shipgo
+```
+
+From the host machine, run migrations:
+
+```bash
+DATABASE_URL=postgresql://postgres:shipgo_local_password@localhost:5432/shipgo pnpm db:migrate
+```
+
+## Native PostgreSQL
+
+If you prefer a locally installed PostgreSQL server:
+
+1. Install PostgreSQL 15 or newer.
+2. Create a database and user for ShipGo.
+3. Set `DATABASE_URL` in `.env.local` to the local connection string.
+4. Run `pnpm db:migrate`.
+
+## Useful commands
+
+| Command | Purpose | When to use |
+| --- | --- | --- |
+| `pnpm db:generate` | Generate a migration from schema changes | After editing `src/db/*.schema.ts` |
+| `pnpm db:migrate` | Apply committed migrations | Setup and every deployment |
+| `pnpm db:push` | Push schema directly | Disposable local experiments only |
+| `pnpm db:studio` | Open Drizzle Studio | Inspect local development data |
+| `pnpm db:check-compat` | Check expected production compatibility | Before release |
+
+Do not run destructive migrations against production without a verified backup.
+`db:push` is a developer convenience and must not be used against production.
+
+## Schema files
+
+| File | Tables |
+| --- | --- |
+| `src/db/auth.schema.ts` | `user`, `session`, `account`, `verification`, `apikey` |
+| `src/db/app.schema.ts` | `shipgo_billing_order`, `shipgo_credit_wallet`, `shipgo_credit_ledger` |
+
+Auth tables must remain compatible with Better Auth requirements. Before
+modifying their fields, check Better Auth migrations and ShipGo compatibility
+checks.
+
+## Adding product tables
+
+1. Define tables in the appropriate `src/db/*.schema.ts` file.
+2. Export them from `src/db/schema.ts`.
+3. Add repository functions in `src/repositories`.
+4. Add business behavior in `src/services`.
+5. Generate and manually review migrations with `pnpm db:generate`.
+6. Apply migrations on a throwaway database and run tests.
+
+Schema code and generated migrations must be committed together.
+
+## Official documentation
+
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/)

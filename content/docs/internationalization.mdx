@@ -1,0 +1,79 @@
+---
+title: Internationalization
+description: Configure locales, routing, UI dictionaries, content, and SEO
+icon: Languages
+---
+
+ShipGo uses Intlayer for UI dictionaries and Fumadocs for localized content.
+
+```bash
+VITE_DEFAULT_LOCALE=en
+VITE_ENABLED_LOCALES=en,zh
+```
+
+The default locale has no URL prefix. Other enabled locales use a prefix, such
+as `/zh`. Locale settings are centralized in `locale.config.ts` and consumed by
+Intlayer, Fumadocs, routing, canonical links, hreflang, and Sitemap generation.
+
+Add UI translations under `src/config/locale/*.content.ts`. Add localized MDX
+as `page.mdx` for the default language and `page.zh.mdx` for Chinese. Restart
+the development server after changing enabled locales.
+
+## How locale routing works
+
+The optional `{-$locale}` route segment wraps localized pages. With `en` as the default locale and `en,zh` enabled:
+
+| Content | English URL | Chinese URL |
+| --- | --- | --- |
+| Home | `/` | `/zh` |
+| Pricing | `/pricing` | `/zh/pricing` |
+| Documentation | `/docs` | `/zh/docs` |
+| Login | `/login` | `/zh/login` |
+
+API routes under `/api` are not locale-prefixed. Send a locale explicitly when an endpoint supports localized results, such as `/api/search?q=billing&locale=en`.
+
+## Translate interface text
+
+Intlayer dictionaries live under `src/config/locale`. Each dictionary has a stable `key` and uses `t` for localized fields:
+
+```ts
+import { type Dictionary, t } from "intlayer"
+
+export default {
+  key: "feature-page",
+  content: {
+    title: t({ en: "Features", zh: "功能" }),
+  },
+} satisfies Dictionary
+```
+
+Use the dictionary from a component with the existing `useIntlayer` pattern. Keep dictionary keys stable because components depend on them.
+
+## Translate MDX content
+
+Localized collections use file suffixes:
+
+```text
+content/docs/example.mdx
+content/docs/example.zh.mdx
+content/blog/launch.mdx
+content/blog/launch.zh.mdx
+```
+
+Keep slugs and frontmatter structure aligned across languages. A missing translation may fall back or disappear depending on the collection and route, so verify both URLs.
+
+## Add another locale
+
+Adding a locale requires more than changing `VITE_ENABLED_LOCALES`:
+
+1. Extend the locale definitions used by routing and Intlayer.
+2. Add translations to every required dictionary.
+3. Add localized MDX files for public content that must exist in that language.
+4. Extend API validation where locale values are currently enumerated.
+5. Rebuild content and verify canonical URLs, `hreflang`, sitemap entries, and default-locale redirects.
+
+Search the repository for `z.enum(["en", "zh"])` before adding a locale; those API schemas must be extended deliberately.
+
+## SEO behavior
+
+Localized public pages generate canonical and `hreflang` metadata. The sitemap includes enabled locales, while the default locale remains unprefixed. Keep `APP_URL`, `VITE_APP_URL`, default locale, and enabled locales consistent before building production artifacts.

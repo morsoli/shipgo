@@ -1,0 +1,51 @@
+---
+title: Neon
+description: 将 ShipGo 连接到 Neon Serverless PostgreSQL
+---
+
+Neon 提供支持分支与 Scale-to-Zero 的 Serverless PostgreSQL。对于不想在本地运行
+PostgreSQL 的 ShipGo 部署，它是热门选择。
+
+## 设置
+
+1. 在 [Neon 控制台](https://console.neon.tech/) 创建项目。
+2. 从 **Connection Details** 面板复制连接串。
+3. 将其粘贴到 `.env.local` 的 `DATABASE_URL` 中。
+4. 执行 `pnpm db:migrate`。
+
+Neon 连接串通常如下：
+
+```
+postgresql://user:password@host.neon.tech/shipgo?sslmode=require
+```
+
+## 连接池
+
+对于 Serverless 或边缘运行时，使用 **Pooled connection** 连接串，它通过 Neon
+的连接池路由：
+
+```
+postgresql://user:password@pooler.neon.tech/shipgo?sslmode=require
+```
+
+对于 ShipGo Nitro 服务器等长运行 Node.js 进程，直接连接通常已足够。
+
+## 用于预览环境的分支
+
+Neon 分支适合在类似生产的 Schema 上测试迁移：
+
+1. 从主数据库创建分支。
+2. 将预发布环境的 `.env.local` 指向分支连接串。
+3. 执行 `pnpm db:migrate` 并验证。
+4. 完成后删除分支。
+
+## 兼容性
+
+ShipGo 使用 Drizzle ORM 和标准 PostgreSQL 功能。Neon 支持所有 ShipGo Schema
+要求。正式切换前，请对 Neon 数据库副本运行 `pnpm db:check-compat`。
+
+## 官方文档
+
+- [Neon 文档](https://neon.tech/docs/)
+- [Neon 连接池](https://neon.tech/docs/connect/connection-pooling)
+- [Neon 分支](https://neon.tech/docs/introduction/branching)

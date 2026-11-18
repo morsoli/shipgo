@@ -1,0 +1,30 @@
+---
+title: Umami
+description: 为 ShipGo 添加 Umami 隐私友好分析
+---
+
+Umami 是注重隐私的开源分析平台，不使用 Cookie，也不跟踪个人数据。
+
+## 配置
+
+1. 自行部署 Umami 或使用 [Umami Cloud](https://cloud.umami.is/)。
+2. 创建网站并复制 **Website ID** 和 **Script URL**。
+3. 添加到 `.env.local`：
+
+```dotenv
+VITE_UMAMI_WEBSITE_ID=your-website-id
+VITE_UMAMI_SCRIPT_URL=https://your-umami-instance.com/script.js
+```
+
+4. 重启应用。
+
+## 跟踪内容
+
+- 无 Cookie 的页面浏览。
+- 来源与设备信息。
+- 功能使用的自定义事件。
+
+## 官方文档
+
+- [Umami 文档](https://umami.is/docs)
+- [Umami Cloud](https://cloud.umami.is/)

@@ -1,0 +1,42 @@
+---
+title: Google Analytics
+description: 为 ShipGo 添加 Google Analytics 流量测量
+---
+
+Google Analytics 测量网站流量、用户旅程和基于事件的转化。
+
+## 配置
+
+1. 在 [Google Analytics](https://analytics.google.com/) 创建 GA4 媒体资源。
+2. 复制 **Measurement ID**（格式：`G-XXXXXXXXXX`）。
+3. 添加到 `.env.local`：
+
+```dotenv
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+4. 重启应用。
+
+仅在配置了 `VITE_GA_MEASUREMENT_ID` 时才会加载跟踪脚本。
+
+## 跟踪内容
+
+- 跨本地化路由的页面浏览。
+- 用户会话与会话时长。
+- 通过 UTM 参数跟踪流量来源和活动。
+
+## 转化事件
+
+如需转化跟踪，请在重要用户行为后发送自定义事件：
+
+- 注册成功后发送 `sign_up`。
+- 完成支付后发送 `purchase`。
+- 联系表单提交后发送 `generate_lead`。
+
+在浏览器代码中使用 `gtag` API，或对敏感行为使用服务端测量。
+
+## 官方文档
+
+- [Google Analytics 4](https://support.google.com/analytics/topic/9143232)
+- [gtag.js 事件](https://developers.google.com/analytics/devguides/collection/ga4/events)
+- [服务端测量](https://developers.google.com/analytics/devguides/collection/protocol/ga4)

@@ -1,0 +1,9 @@
+{
+  "title": "Payments and Credits",
+  "icon": "CreditCard",
+  "pages": [
+    "index",
+    "stripe",
+    "creem"
+  ]
+}

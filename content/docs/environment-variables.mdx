@@ -1,0 +1,113 @@
+---
+title: Environment Variables
+description: Complete guide to ShipGo runtime, build-time, provider, and release variables
+icon: KeyRound
+---
+
+Copy `.env.example` to `.env.local` for development. In production, configure variables in the deployment platform instead of committing an environment file.
+
+## Security rules
+
+- Variables beginning with `VITE_` are public and embedded in browser code.
+- All secrets must remain server-only and must not use the `VITE_` prefix.
+- Use different secrets and provider accounts for development, staging, and production.
+- Rotate a secret immediately if it appears in source control, logs, screenshots, or client bundles.
+- Restart the server after changing runtime variables and rebuild after changing `VITE_` variables.
+
+## Application and database
+
+| Variable | Required in production | Purpose |
+| --- | --- | --- |
+| `APP_URL` | Yes | Public server origin used for callbacks, redirects, sitemap, and trusted origins |
+| `VITE_APP_URL` | Yes | Public browser origin; keep equal to `APP_URL` |
+| `DATABASE_URL` | Yes | PostgreSQL connection URL |
+| `TEST_DATABASE_URL` | For integration tests | Dedicated disposable integration-test database |
+| `BETTER_AUTH_SECRET` | Yes | Better Auth signing secret; use at least 32 random characters |
+| `ADMIN_DEMO_MODE` | No | Makes supported admin mutations read-only |
+| `CRON_SECRET` | When credits are enabled | Protects `/api/cron/credits` |
+
+Generate secrets with a password manager or:
+
+```bash
+openssl rand -base64 48
+```
+
+## Authentication
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `CREDENTIAL_AUTH_ENABLED` | `true` | Enable email/password login |
+| `EMAIL_VERIFICATION_ENABLED` | `false` | Require verification before protected pages |
+| `GOOGLE_AUTH_ENABLED` | `false` | Enable Google OAuth when credentials also exist |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | empty | Google OAuth application credentials |
+| `GITHUB_AUTH_ENABLED` | `false` | Enable GitHub OAuth when credentials also exist |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | empty | GitHub OAuth application credentials |
+| `VITE_TURNSTILE_CAPTCHA_ENABLED` | `false` | Render Turnstile in the browser |
+| `VITE_TURNSTILE_SITE_KEY` | empty | Public Turnstile site key |
+| `TURNSTILE_CAPTCHA_ENABLED` | `false` | Verify Turnstile on the server |
+| `TURNSTILE_SECRET_KEY` | empty | Server-only Turnstile secret |
+
+Enable OAuth only after registering the exact production callback URLs with the provider. Enable both Turnstile flags together.
+
+## Localization and development
+
+| Variable | Example | Purpose |
+| --- | --- | --- |
+| `VITE_DEFAULT_LOCALE` | `en` | Locale rendered without a URL prefix |
+| `VITE_ENABLED_LOCALES` | `en,zh` | Comma-separated locales included in the build |
+| `VITE_CURRENCY` | `USD` | Display currency |
+| `TANSTACK_DEVTOOLS_EVENT_BUS_ENABLED` | `false` | Enable the optional standalone event bus |
+| `TANSTACK_DEVTOOLS_EVENT_BUS_PORT` | `42069` | Event bus port |
+
+ShipGo currently includes complete English and Chinese dictionaries. Adding a new locale requires content and code changes, not only an environment variable.
+
+## Email and newsletter
+
+| Variable | Purpose |
+| --- | --- |
+| `EMAIL_PROVIDER` | Must be `resend` in the current production validator |
+| `EMAIL_FROM` | Verified sender address |
+| `RESEND_API_KEY` | Resend server API key |
+| `NEWSLETTER_PROVIDER` | `resend` or `beehiiv` |
+| `RESEND_AUDIENCE_ID` | Resend Audience used for newsletter subscriptions |
+| `BEEHIIV_API_KEY`, `BEEHIIV_PUBLICATION_ID` | Beehiiv newsletter credentials |
+| `CONTACT_EMAIL` | Recipient of contact form messages |
+
+## Payments
+
+Set `PAYMENT_PROVIDER` to `stripe` or `creem`, then configure only the selected provider:
+
+| Variable | Purpose |
+| --- | --- |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe API and signed webhook processing |
+| `CREEM_API_KEY`, `CREEM_WEBHOOK_SECRET` | Creem API and signed webhook processing |
+| `CREEM_DEBUG` | Use Creem test server |
+| `STRIPE_PRO_MONTHLY_PRICE_ID`, `STRIPE_PRO_YEARLY_PRICE_ID` | Server plan price IDs |
+| `STRIPE_LIFETIME_PRICE_ID` | Server lifetime plan price ID |
+| `STRIPE_CREDIT_*_PRICE_ID` | Credit package price IDs |
+| `VITE_STRIPE_*_PRICE_ID` | Public plan price IDs embedded into pricing UI |
+
+Price IDs must match the amounts and intervals configured in `src/config/business-config.ts` (which `src/config/payment-config.ts` derives from).
+
+## Storage, notifications, and analytics
+
+S3-compatible uploads use `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`, `STORAGE_REGION`, `STORAGE_BUCKET_NAME`, `STORAGE_ENDPOINT`, and `STORAGE_PUBLIC_URL`.
+
+Business notifications use `DISCORD_WEBHOOK_URL` and `FEISHU_WEBHOOK_URL`. Support chat uses `VITE_CRISP_WEBSITE_ID` in the browser and optional `CRISP_WEBSITE_ID` on the server.
+
+Analytics integrations are enabled only when their public identifiers exist:
+
+- `VITE_GA_MEASUREMENT_ID`
+- `VITE_UMAMI_WEBSITE_ID`, `VITE_UMAMI_SCRIPT_URL`
+- `VITE_PLAUSIBLE_DOMAIN`
+- `VITE_OPENPANEL_CLIENT_ID`
+- `VITE_CLARITY_PROJECT_ID`
+- `VITE_AHREFS_SCRIPT_URL`, `VITE_DATAFAST_SCRIPT_URL`, `VITE_SELINE_SCRIPT_URL`
+
+## Production validation
+
+Production startup validates the public URL, database, auth secret, selected payment provider, webhook secret, and Resend configuration. Run the complete release check before deploying:
+
+```bash
+pnpm verify:release
+```

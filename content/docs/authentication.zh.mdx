@@ -1,0 +1,71 @@
+---
+title: 身份认证
+description: 配置 Better Auth、登录方式、邮箱验证与权限
+icon: ShieldCheck
+---
+
+Better Auth 使用 PostgreSQL Drizzle Adapter、七天会话、Admin 与 API Key
+插件、邮箱标准化和可选的 Turnstile 防护。
+
+邮箱密码登录默认开启，可通过 `CREDENTIAL_AUTH_ENABLED=false` 隐藏。Google 与
+GitHub 仅在功能开关开启且对应 Client ID、Secret 均配置后显示。
+
+认证尚未配置时登录页仍然可见，并提示缺失配置。`/register` 是 `/login` 注册模式的
+稳定别名。
+
+Dashboard 与设置页面由服务端中间件保护。管理员权限严格使用
+`user.role === "admin"`，不能依赖仅客户端的权限判断。
+
+## 注册与防护
+
+启用邮箱验证时，已验证用户会自动登录。Turnstile 需要客户端与服务端配置匹配：
+请同时配置公开的 `VITE_TURNSTILE_*` 值和服务端 Secret，或同时保持禁用。
+
+注册后处理会分别尝试 Newsletter 订阅、注册赠送积分和免费月度积分。失败会被记录，
+但不会回滚用户账号。
+
+## 认证路由
+
+| Route | 用途 |
+| --- | --- |
+| `/login` | 登录并选择可用登录方式 |
+| `/register` | 打开注册模式的稳定别名 |
+| `/forgot-password` | 请求密码重置邮件 |
+| `/reset-password` | 完成密码重置 |
+| `/verify-email` | 邮箱验证状态与重新发送 |
+| `/auth-error` | OAuth 与认证错误 |
+| `/api/auth/*` | Better Auth 服务端 Handler |
+
+Dashboard、设置和管理员页面都在服务端受到保护。仅浏览器可见性永远不能作为授权边界。
+
+## 启用 OAuth Provider
+
+1. 在 Provider 测试环境创建 OAuth 应用。
+2. 为每个环境注册回调 URL。
+3. 将 Client ID 与 Secret 写入 `.env.local`。
+4. 将对应 `*_AUTH_ENABLED` 开关设为 `true`。
+5. 重启 ShipGo，并验证登录、退出和账户关联。
+
+ShipGo 根据服务端配置决定登录方式是否可见，因此不会展示无法使用的 OAuth 按钮。
+
+## 授权 Middleware
+
+| Middleware | 用途 |
+| --- | --- |
+| `sessionMiddleware` | 可选会话，匿名访问仍有效 |
+| `pageAuthMiddleware` | 未登录页面请求重定向 |
+| `pageAdminMiddleware` | 页面要求 `user.role === "admin"` |
+| `apiAuthMiddleware` | 未登录 API 返回 HTTP 错误 |
+| `apiAdminMiddleware` | 非管理员 API 返回 HTTP 错误 |
+| `actionAuthMiddleware` | Typed Server Action 要求用户登录 |
+| `demoReadonlyActionAdminMiddleware` | 保护管理员写操作与演示模式 |
+
+从 Middleware Context 读取已认证用户。绝不能把浏览器提交的用户 ID 当作身份凭据。
+
+## 生产检查清单
+
+- 使用至少 32 位随机字符且唯一的 `BETTER_AUTH_SECRET`。
+- 测试密码重置、验证邮件、退出和删除账户。
+- 为生产 Origin 注册准确 OAuth 回调地址。
+- 同时启用客户端与服务端 Turnstile 设置。
+- 验证会话管理、API Key 创建、管理员访问和封禁用户行为。

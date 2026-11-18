@@ -1,0 +1,78 @@
+---
+title: ShipGo 介绍
+description: 可用于生产环境的 TanStack Start 全栈应用模板
+icon: Ship
+---
+
+ShipGo 面向希望构建真实 Web 产品的团队。它以 **TanStack Start**、React、
+PostgreSQL、Drizzle ORM、Better Auth 和可替换 Provider 集成作为基础。
+
+模板已经实现通常会占用产品开发数周的能力：认证、受保护的用户后台、管理员工具、
+支付、积分、内容、国际化、邮件、存储、分析、部署和发布检查。
+
+## 可以用 ShipGo 构建什么
+
+ShipGo 适合 SaaS、付费工具、会员产品、内容产品和内部 Web 应用。新项目默认包含：
+
+- 响应式营销网站、定价页、博客、文档、更新日志、路线图、联系表单和等候名单。
+- 邮箱密码、Google、GitHub 登录，以及邮箱验证、密码重置、会话、删除账户和 API Key。
+- 用户后台、设置页、账单管理、积分历史和管理员用户控制台。
+- Stripe 或 Creem 结账、订阅、终身购买、积分包、客户门户和签名 Webhook。
+- PostgreSQL Schema、Drizzle 迁移、Repository、业务 Service 和需要认证的 API。
+- 由 Intlayer 和 Fumadocs 支持的中英文路由与内容。
+- Resend 邮件、Resend 或 Beehiiv Newsletter、S3 兼容存储、通知和多种分析服务。
+- Node.js 与 Docker 生产构建、健康检查、冒烟测试、集成测试和发布验证。
+
+## ShipGo 原则
+
+ShipGo 运行时和应用架构完全基于 TanStack，遵循功能完整、配置优先原则。
+
+| 领域 | ShipGo 的实现 |
+| --- | --- |
+| 框架 | TanStack Start 与 TanStack Router |
+| 渲染 | 服务端渲染与客户端导航 |
+| 服务端接口 | 基于文件路由的 TanStack server handlers |
+| 数据库 | PostgreSQL 与 Drizzle ORM |
+| 认证 | Better Auth |
+| 内容 | Fumadocs 管理的 MDX 内容集合 |
+| 国际化 | 支持语言前缀的路由与 Intlayer 字典 |
+| 部署 | 可移植的 Node.js 输出与 Docker 镜像 |
+
+ShipGo 有意把产品配置放在代码中，把密钥放在环境变量中。配置因此可以获得类型检查、
+代码审查，并能在不同环境中部署。
+
+## 选择开始方式
+
+<Cards>
+  <Card title="Docker 快速部署" href="/zh/docs/deployment/docker">
+    用最少的前置决策启动完整应用和 PostgreSQL。
+  </Card>
+  <Card title="构建第一个应用" href="/zh/docs/first-application">
+    本地配置环境、修改品牌、添加页面与 API 并验证结果。
+  </Card>
+  <Card title="配置真实产品" href="/zh/docs/configuration">
+    配置网站、套餐、Provider、语言和生产密钥。
+  </Card>
+</Cards>
+
+## 推荐学习顺序
+
+1. 完成 [Docker 快速部署](/zh/docs/deployment/docker)，确认健康检查正常。
+2. 在移动或新增代码之前阅读[项目结构](/zh/docs/project-structure)。
+3. 完整执行一次[构建第一个应用](/zh/docs/first-application)。
+4. 配置[认证](/zh/docs/authentication)、[数据库](/zh/docs/database)和[支付与积分](/zh/docs/payments-and-credits)。
+5. 上线前执行[部署](/zh/docs/deployment)与[运维](/zh/docs/operations)检查清单。
+
+## 重要约定
+
+- `src/routes` 下的文件定义页面和 HTTP 接口。
+- `src/services` 放业务行为，Route 应保持精简。
+- `src/repositories` 负责数据库访问。
+- 可公开的产品设置放在 `src/config`；密钥放在 `.env.local` 或部署平台。
+- 面向用户的文本放在 Intlayer 字典或本地化 MDX 中，不要直接写在组件里。
+- 数据库迁移属于部署步骤，应用启动时不会自动执行迁移。
+
+## 注意点
+
+本文档描述当前仓库中的实际代码，并给出准确路径、命令和预期结果。启用外部 Provider 时，
+应先使用测试环境，并且永远不要把密钥提交到版本控制。

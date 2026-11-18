@@ -1,0 +1,96 @@
+---
+title: ShipGo
+description: A production-ready TanStack Start full-stack application template
+icon: Ship
+---
+
+ShipGo is a full-stack application template for teams that want to build a real
+web product. It uses **TanStack Start**, React, PostgreSQL, Drizzle ORM, Better
+Auth, and a provider-based integration layer.
+
+The template includes the parts that usually consume the first weeks of a
+product: authentication, protected dashboards, admin tools, billing, credits,
+content, internationalization, email, storage, analytics, deployment, and release
+checks.
+
+## What you can build
+
+ShipGo is designed for SaaS products, paid tools, membership products, content
+products, and internal web applications. A new project starts with:
+
+- A responsive marketing site, pricing page, blog, documentation, changelog,
+  roadmap, contact form, and waitlist.
+- Email/password, Google, and GitHub authentication with verification, password
+  reset, sessions, account deletion, and API keys.
+- User dashboard, settings pages, billing management, credit history, and an
+  admin user console.
+- Stripe or Creem checkout, subscriptions, lifetime purchases, credit packages,
+  customer portal, and signed webhooks.
+- PostgreSQL schemas, Drizzle migrations, repositories, business services, and
+  authenticated API routes.
+- English and Chinese routes and content powered by Intlayer and Fumadocs.
+- Resend email, Resend or Beehiiv newsletter, S3-compatible storage,
+  notifications, and multiple analytics providers.
+- Node.js and Docker production builds, health checks, smoke tests, integration
+  tests, and release verification.
+
+## How ShipGo is different
+
+ShipGo follows the completeness and configuration-first approach of mature SaaS
+templates, but its runtime and application architecture are TanStack-native.
+
+| Area | ShipGo approach |
+| --- | --- |
+| Framework | TanStack Start and TanStack Router |
+| Rendering | Server rendering plus client navigation |
+| Server endpoints | File routes with TanStack server handlers |
+| Database | PostgreSQL with Drizzle ORM |
+| Authentication | Better Auth |
+| Content | MDX collections with Fumadocs |
+| Localization | Locale-aware routes and Intlayer dictionaries |
+| Deployment | Portable Node.js output and Docker image |
+
+ShipGo deliberately keeps product configuration in code and secrets in
+environment variables. This makes changes reviewable, typed, and deployable
+across environments.
+
+## Choose a starting path
+
+<Cards>
+  <Card title="Docker quick start" href="/docs/deployment/docker">
+    Start the complete application and PostgreSQL locally with the fewest decisions.
+  </Card>
+  <Card title="Build your first application" href="/docs/first-application">
+    Set up locally, change the brand, add a page and API endpoint, then verify.
+  </Card>
+  <Card title="Configure a real product" href="/docs/configuration">
+    Configure the site, plans, providers, languages, and production secrets.
+  </Card>
+</Cards>
+
+## Recommended learning order
+
+1. Complete the [Docker quick start](/docs/deployment/docker) and confirm the health endpoint is green.
+2. Read [Project Structure](/docs/project-structure) before moving or adding code.
+3. Follow [Build Your First Application](/docs/first-application) once.
+4. Configure [authentication](/docs/authentication), [database](/docs/database), and [payments and credits](/docs/payments-and-credits).
+5. Run the [deployment](/docs/deployment) and [operations](/docs/operations) checklists before launch.
+
+## Important conventions
+
+- Files under `src/routes` define pages and HTTP endpoints.
+- Files under `src/services` contain business behavior; routes should remain thin.
+- Files under `src/repositories` own database access.
+- Public product settings belong in `src/config`; secrets belong in `.env.local`
+  or the deployment platform.
+- User-facing text belongs in Intlayer dictionaries or localized MDX, not
+  directly in components.
+- A database migration is a deployment step. The application never runs
+  migrations automatically on startup.
+
+## Documentation promise
+
+These guides describe the code in this repository, including exact paths,
+commands, and expected outcomes. When you enable an external provider, always
+use that provider's test environment first and keep secrets out of version
+control.

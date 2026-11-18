@@ -1,0 +1,54 @@
+---
+title: Neon
+description: Connect ShipGo to Neon serverless PostgreSQL
+---
+
+Neon provides serverless PostgreSQL with branching and scale-to-zero. It is a
+popular choice for ShipGo deployments that need a managed database without
+running PostgreSQL locally.
+
+## Setup
+
+1. Create a project in the [Neon Console](https://console.neon.tech/).
+2. Copy the connection string from the **Connection Details** panel.
+3. Paste it into `.env.local` as `DATABASE_URL`.
+4. Run `pnpm db:migrate`.
+
+Neon connection strings typically look like:
+
+```
+postgresql://user:password@host.neon.tech/shipgo?sslmode=require
+```
+
+## Pooled connections
+
+For serverless or edge runtimes, use the **Pooled connection** string which
+routes through Neon's connection pooler:
+
+```
+postgresql://user:password@pooler.neon.tech/shipgo?sslmode=require
+```
+
+For long-running Node.js processes like ShipGo's Nitro server, the direct
+connection is usually sufficient.
+
+## Branching for preview environments
+
+Neon branches are useful for testing migrations against a production-like schema:
+
+1. Create a branch from your main database.
+2. Point a staging `.env.local` at the branch connection string.
+3. Run `pnpm db:migrate` and verify.
+4. Delete the branch when done.
+
+## Compatibility
+
+ShipGo uses Drizzle ORM with standard PostgreSQL features. Neon supports all
+ShipGo schema requirements. Run `pnpm db:check-compat` against a Neon database
+copy before production cutover.
+
+## Official documentation
+
+- [Neon Docs](https://neon.tech/docs/)
+- [Neon Connection Pooling](https://neon.tech/docs/connect/connection-pooling)
+- [Neon Branching](https://neon.tech/docs/introduction/branching)

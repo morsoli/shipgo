@@ -1,0 +1,215 @@
+---
+title: 构建第一个应用
+description: 在本地配置 ShipGo、修改品牌、添加页面与 API，并验证结果
+icon: Rocket
+---
+
+本教程将从本地环境配置开始，逐步构建一个名为 **Acme Tasks** 的小型端到端产品。
+它展示了 ShipGo 的常规开发流程，并且不需要外部 Provider。
+
+## 开始之前
+
+### 前置要求
+
+- Node.js 24 与 Corepack
+- 仓库 `packageManager` 字段指定的 pnpm 10
+- 一个 PostgreSQL 数据库
+
+数据库可以是 Compose 服务、本机安装的数据库，也可以是 Neon、Supabase 等托管
+PostgreSQL。
+
+### 安装依赖
+
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+```
+
+使用 `--frozen-lockfile` 可以确保依赖安装可复现。如果确实要修改依赖，运行
+`pnpm install`，并提交变化后的 `pnpm-lock.yaml`。
+
+### 创建 `.env.local`
+
+```bash
+cp .env.example .env.local
+```
+
+从宿主机运行开发服务器时，`DATABASE_URL` 必须是本机可以访问的地址。使用自带
+Compose 数据库时配置为：
+
+```dotenv
+DATABASE_URL=postgresql://postgres:shipgo_local_password@localhost:5432/shipgo
+```
+
+只启动 PostgreSQL：
+
+```bash
+docker compose up -d db
+```
+
+使用托管 PostgreSQL 时，改为服务商提供的连接 URL。应用优先使用连接池 URL，并
+确认服务商支持需要执行的迁移操作。
+
+### 执行迁移
+
+```bash
+pnpm db:migrate
+```
+
+`drizzle/` 中的迁移是数据库的版本历史。拉取到包含新迁移的代码后，都要执行该
+命令。
+
+### 启动开发服务器
+
+```bash
+pnpm dev
+```
+
+打开 [http://localhost:3000](http://localhost:3000)。开发服务器提供热更新和
+TanStack 开发工具。确认 `/api/ping` 报告数据库已连接。
+
+### 执行基础检查
+
+```bash
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+`typecheck` 会先编译 MDX 与 Intlayer 内容，再运行 TypeScript。`build` 会生成
+`public/robots.txt`，并在 `.output` 中创建 Node.js 服务端 Bundle。
+
+## 1. 修改产品元信息
+
+打开 `src/config/site-config.ts` 并修改：
+
+```ts
+export const siteConfig = {
+  title: "Acme Tasks",
+  titleSuffix: "Finish focused work",
+  author: "Acme",
+  description: "A focused task application for small teams.",
+  // 保留其余配置。
+}
+```
+
+该配置用于元信息和共享产品 UI。确定最终品牌后，再替换 `public/` 下的 Logo 与
+社交分享图。
+
+## 2. 修改首页文案
+
+打开 `src/config/locale/landing.content.ts`。每个翻译字段都要保留 `en` 和 `zh`
+值。`pnpm content:build` 会报告缺失或格式错误的内容。
+
+不要把需要翻译的营销文案直接写在 React 组件中。把文案放在字典中，同一组件结构
+才能渲染所有启用语言。
+
+## 3. 添加公开页面
+
+创建 `src/routes/{-$locale}/_main/_landing/features.tsx`：
+
+```tsx
+import { createFileRoute } from "@tanstack/react-router"
+
+export const Route = createFileRoute("/{-$locale}/_main/_landing/features")({
+  component: FeaturesPage,
+})
+
+function FeaturesPage() {
+  return (
+    <main className="mx-auto max-w-5xl px-6 py-20">
+      <h1 className="text-4xl font-semibold">Features</h1>
+      <p className="mt-4 text-muted-foreground">
+        Plan focused work, keep a clear history, and ship on time.
+      </p>
+    </main>
+  )
+}
+```
+
+`_main` 与 `_landing` 只选择布局，不会出现在 URL 中。访问 `/features` 和
+`/zh/features`。
+
+生产页面在添加更多语言前，应先把文本移动到 Intlayer 字典。
+
+## 4. 添加公开 API
+
+创建 `src/routes/api/product-info.ts`：
+
+```ts
+import { createFileRoute } from "@tanstack/react-router"
+import { siteConfig } from "@/config/site-config"
+import { Resp } from "@/shared/lib/tools/response"
+
+export const Route = createFileRoute("/api/product-info")({
+  server: {
+    handlers: {
+      GET: async () =>
+        Resp.success({
+          name: siteConfig.title,
+          features: siteConfig.features,
+        }),
+    },
+  },
+})
+```
+
+验证接口：
+
+```bash
+curl http://localhost:3000/api/product-info
+```
+
+需要遵循 ShipGo 通用 JSON 包装格式的应用接口使用 `Resp.success` 和 `Resp.error`。
+Sitemap、Markdown 或 Webhook 确认等非 JSON 资源使用普通 `Response`。
+
+## 5. 理解受保护接口
+
+需要登录用户时，为 Route 添加 `apiAuthMiddleware`：
+
+```ts
+import { apiAuthMiddleware } from "@/shared/middleware/auth.middleware"
+
+server: {
+  middleware: [apiAuthMiddleware],
+  handlers: {
+    GET: async ({ context }) =>
+      Resp.success({ userId: context.session.user.id }),
+  },
+}
+```
+
+不要信任浏览器提交的 `userId`，应从 `context.session.user` 读取已认证身份。
+
+## 6. 完成前验证
+
+```bash
+pnpm content:build
+pnpm typecheck
+pnpm test
+pnpm build
+```
+
+现在已经修改了共享配置、本地化内容、页面 Route 和 API Route。下一步选择最接近
+产品需求的功能指南：[认证](/zh/docs/authentication)、[数据库](/zh/docs/database)
+或[支付与积分](/zh/docs/payments-and-credits)。
+
+## 常用数据库命令
+
+| 命令 | 用途 | 使用时机 |
+| --- | --- | --- |
+| `pnpm db:generate` | 根据 Schema 变化生成迁移 | 修改 `src/db/*.schema.ts` 后 |
+| `pnpm db:migrate` | 执行已提交的迁移 | 初始安装与每次部署 |
+| `pnpm db:push` | 直接推送 Schema | 仅用于可丢弃的本地实验 |
+| `pnpm db:studio` | 打开 Drizzle Studio | 查看本地开发数据 |
+| `pnpm db:check-compat` | 检查生产兼容性 | 发布前 |
+
+不要用 `db:push` 替代应提交到仓库的生产迁移。
+
+## 环境变量加载方式
+
+Vite 与 Drizzle 都会加载 `.env.local`。浏览器可读取的值必须使用 `VITE_` 前缀，
+并会写入客户端代码，因此绝不能包含密钥。仅服务端使用的值通过 `process.env` 读取。
+
+修改 `VITE_` 变量后必须重启开发服务器。修改服务端变量后也建议重启，因为模块
+可能缓存 Provider 实例。

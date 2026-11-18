@@ -1,0 +1,73 @@
+export const siteConfig = {
+  title: "ShipGo",
+  titleSuffix: "Ship your SaaS with confidence",
+  author: "ShipGo",
+  description:
+    "ShipGo is a production-ready TanStack SaaS foundation with authentication, billing, credits, content, and integrations.",
+  keywords: [
+    "SaaS starter",
+    "TanStack Start",
+    "Stripe",
+    "subscription",
+    "credit system",
+    "admin dashboard",
+    "React",
+  ],
+  theme: {
+    defaultTheme: "system",
+    enableSwitch: true,
+  },
+  images: {
+    ogImage: "/og.jpg",
+    logo: "/image.png",
+    isInvert: false,
+  },
+  robots: {
+    meta: "index, follow",
+    header: "index, follow",
+  },
+  social: {
+    github: "https://github.com/shipgo",
+    twitter: "https://x.com/shipgo",
+    discord: "",
+    youtube: "",
+  },
+  features: {
+    auth: true,
+    accountDeletion: true,
+    payments: true,
+    credits: true,
+    blog: true,
+    docs: true,
+    newsletter: true,
+  },
+  auth: {
+    providers: ["email", "google", "github"],
+    sessionDays: 7,
+    requireEmailVerification: process.env.EMAIL_VERIFICATION_ENABLED === "true",
+  },
+  providers: {
+    payment: process.env.PAYMENT_PROVIDER === "creem" ? "creem" : "stripe",
+    email: "resend",
+    newsletter: process.env.NEWSLETTER_PROVIDER === "beehiiv" ? "beehiiv" : "resend",
+    storage: "s3-compatible",
+    notifications: ["discord", "feishu"],
+  },
+  content: {
+    blog: { enabled: true, pageSize: 9 },
+    docs: { enabled: true },
+    search: { provider: "orama", maxResults: 20 },
+  },
+  analytics: [
+    "google",
+    "umami",
+    "plausible",
+    "ahrefs",
+    "datafast",
+    "openpanel",
+    "posthog",
+    "seline",
+    "clarity",
+  ],
+  affiliates: ["affonso", "promotekit"],
+} as const

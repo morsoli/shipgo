@@ -1,0 +1,70 @@
+---
+title: 运维
+description: 验证发布、检查数据、修复支付并安全回滚
+icon: Wrench
+---
+
+## 发布验证
+
+```bash
+pnpm verify:release
+pnpm db:check-compat
+pnpm test:integration
+pnpm smoke:release
+```
+
+常用运维命令：
+
+- `pnpm users:query` 与 `pnpm contacts:query` 检查应用数据。
+- `pnpm payments:repair` 修复支持范围内的支付不一致。
+- `pnpm distribute-credits` 手动执行积分发放。
+
+部署不可变镜像。需要回滚时，将流量切回上一镜像并复用兼容数据库；再次发布前应
+核对 Webhook 事件。
+
+## 发布清单
+
+1. 执行 `pnpm check`、`pnpm deps:check`、`pnpm typecheck`、`pnpm test` 和
+   `pnpm build`。
+2. 对生产数据库副本运行 `pnpm db:check-compat`。
+3. 在预发布环境回放有效签名的 Stripe 和 Creem Webhook Fixture。
+4. 正式切换前立即备份生产环境。
+5. 部署后验证 `/api/ping`、登录、Billing，以及一次幂等 Webhook 回放。
+
+由于 ShipGo 避免破坏性 Schema 变更，回滚不应要求数据库变更。再次发布前，请排查
+日志并核对 Webhook 事件。
+
+## 每个发布命令检查什么
+
+| 命令 | 用途 |
+| --- | --- |
+| `pnpm check` | Biome 格式、Lint 与源码检查 |
+| `pnpm deps:check` | 未使用或缺失的直接依赖 |
+| `pnpm typecheck` | 内容编译与 TypeScript |
+| `pnpm test` | 单元与行为测试 |
+| `pnpm build` | 生产浏览器与服务端 Bundle |
+| `pnpm test:integration` | 针对 `TEST_DATABASE_URL` 的 Repository 行为 |
+| `pnpm db:check-compat` | 必需核心表、字段与索引 |
+| `pnpm smoke:release` | 已运行部署的 Route、重定向与 Webhook 拒绝行为 |
+
+`pnpm verify:release` 组合源码级检查。兼容、集成和冒烟测试需要显式外部目标，应单独运行。
+
+## 运维脚本
+
+```bash
+pnpm users:query -- example@example.com
+pnpm contacts:query -- example@example.com
+pnpm payments:repair
+pnpm payments:repair -- --apply
+pnpm distribute-credits
+```
+
+从可信操作环境运行数据修改脚本，并显式提供 `DATABASE_URL`。保存命令、操作人、目标环境与输出。
+
+## 事故处理顺序
+
+1. 停止有害写入，或将流量移出错误版本。
+2. 保存日志、Webhook ID、发布版本与数据库状态。
+3. Schema 兼容时回滚应用镜像。
+4. 核对支付、积分、邮件与 Provider 事件。
+5. 在预发布环境修复并验证后恢复正常流量。

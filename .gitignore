@@ -1,0 +1,16 @@
+node_modules/
+.DS_Store
+dist/
+dist-ssr/
+.output/
+.nitro/
+.tanstack/
+.source/
+.intlayer/
+
+.env
+.env.*
+!.env.example
+*.local
+*.log
+*.tsbuildinfo

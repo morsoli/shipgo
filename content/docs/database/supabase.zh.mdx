@@ -1,0 +1,35 @@
+---
+title: Supabase
+description: 将 ShipGo 连接到 Supabase PostgreSQL
+---
+
+> 该数据库 Provider 已规划，但尚未在 ShipGo 中完整实现文档。
+
+## 概述
+
+Supabase 提供托管 PostgreSQL，内置连接池、认证、存储和实时订阅。ShipGo 可以
+使用 Supabase PostgreSQL 作为主数据库，同时自行管理认证与业务逻辑。
+
+## 计划设置
+
+1. 在 [Supabase 控制台](https://supabase.com/dashboard) 创建项目。
+2. 从项目设置复制 **Database** 连接串。
+3. 将其粘贴到 `.env.local` 的 `DATABASE_URL` 中。
+4. 执行 `pnpm db:migrate`。
+
+## 连接模式
+
+- **直接连接**：用于长运行 Node.js 进程。
+- **连接池**：用于 Serverless 或高并发工作负载。
+- **强制 SSL**：Supabase 对外部连接强制使用 SSL。
+
+## 官方文档
+
+- [Supabase 文档](https://supabase.com/docs)
+- [Supabase 数据库](https://supabase.com/docs/guides/database)
+- [Supabase 连接串](https://supabase.com/docs/guides/database/connecting-to-postgres)
+
+## 注意
+
+ShipGo 自行管理 Better Auth 数据表。如果同时使用 Supabase Auth 和 ShipGo，
+请保持两套认证系统隔离，避免冲突。

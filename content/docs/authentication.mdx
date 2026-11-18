@@ -1,0 +1,76 @@
+---
+title: Authentication
+description: Configure Better Auth, login methods, verification, and authorization
+icon: ShieldCheck
+---
+
+Better Auth uses the PostgreSQL Drizzle adapter, seven-day sessions, admin and
+API-key plugins, normalized email handling, and optional Turnstile protection.
+
+Email/password login is enabled by default. Set `CREDENTIAL_AUTH_ENABLED=false`
+to hide it. Google and GitHub buttons appear only when their feature flags are
+enabled and both provider credentials are configured.
+
+The login page remains visible before auth is configured and explains the
+missing setup. `/register` is a stable alias for the registration mode on
+`/login`.
+
+Server middleware protects dashboard and settings routes. Admin access is
+strictly `user.role === "admin"`. Never rely on client-only authorization.
+
+## Registration and protection
+
+Optional email verification automatically signs in verified users. Turnstile
+requires matching client and server settings: configure both the public
+`VITE_TURNSTILE_*` values and the server-only secret values together, or leave
+both disabled.
+
+Registration post-processing independently attempts newsletter subscription,
+registration credits, and free monthly credits. Failures are logged and do not
+roll back the user account.
+
+## Authentication routes
+
+| Route | Purpose |
+| --- | --- |
+| `/login` | Sign in and select available login methods |
+| `/register` | Stable alias that opens registration |
+| `/forgot-password` | Request a reset email |
+| `/reset-password` | Complete password reset |
+| `/verify-email` | Verification status and resend flow |
+| `/auth-error` | OAuth and authentication errors |
+| `/api/auth/*` | Better Auth server handler |
+
+Dashboard, settings, and admin pages are protected on the server. Browser-only visibility is never an authorization boundary.
+
+## Enable an OAuth provider
+
+1. Create an OAuth application in the provider's test environment.
+2. Register callback URLs for every environment.
+3. Add the client ID and secret to `.env.local`.
+4. Set the matching `*_AUTH_ENABLED` flag to `true`.
+5. Restart ShipGo and verify login, logout, and account linking.
+
+ShipGo derives login-method visibility from server configuration, so an unusable OAuth button is not shown.
+
+## Authorization middleware
+
+| Middleware | Use |
+| --- | --- |
+| `sessionMiddleware` | Optional session; anonymous access remains valid |
+| `pageAuthMiddleware` | Redirect unauthenticated page requests |
+| `pageAdminMiddleware` | Require `user.role === "admin"` for a page |
+| `apiAuthMiddleware` | Return an HTTP error for unauthenticated APIs |
+| `apiAdminMiddleware` | Return an HTTP error for non-admin APIs |
+| `actionAuthMiddleware` | Require a user in a typed server action |
+| `demoReadonlyActionAdminMiddleware` | Protect admin mutation and demo mode |
+
+Read the authenticated user from middleware context. Never accept a browser-supplied user ID as proof of identity.
+
+## Production checklist
+
+- Use a unique `BETTER_AUTH_SECRET` of at least 32 random characters.
+- Test password reset, verification email, logout, and account deletion.
+- Register exact OAuth callbacks for the production origin.
+- Enable both client and server Turnstile settings together.
+- Verify session management, API key creation, admin access, and banned-user behavior.

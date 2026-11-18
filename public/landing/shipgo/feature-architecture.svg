@@ -1,0 +1,24 @@
+<svg width="800" height="520" viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="520" rx="24" fill="#F8FAFC"/>
+  <rect x="24" y="24" width="752" height="472" rx="18" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+  <circle cx="56" cy="54" r="6" fill="#EF4444"/>
+  <circle cx="76" cy="54" r="6" fill="#F59E0B"/>
+  <circle cx="96" cy="54" r="6" fill="#10B981"/>
+  <text x="128" y="59" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="600">ShipGo — Layered Service Architecture</text>
+  <rect x="64" y="100" width="672" height="64" rx="12" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1.5"/>
+  <text x="92" y="137" fill="#1E3A8A" font-family="ui-monospace, monospace" font-size="16" font-weight="600">Routes &amp; Server Actions (Zod + Middleware)</text>
+  <path d="M400 164V196" stroke="#64748B" stroke-width="2.5" stroke-dasharray="4 4"/>
+  <rect x="64" y="196" width="672" height="64" rx="12" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1.5"/>
+  <text x="92" y="233" fill="#065F46" font-family="ui-monospace, monospace" font-size="16" font-weight="600">Business Services (Billing, Credits, Auth, Content)</text>
+  <path d="M240 260V304M560 260V304" stroke="#64748B" stroke-width="2.5" stroke-dasharray="4 4"/>
+  <rect x="64" y="304" width="320" height="140" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="92" y="344" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">Repositories + PostgreSQL</text>
+  <rect x="92" y="366" width="264" height="24" rx="6" fill="#E2E8F0"/>
+  <rect x="92" y="400" width="210" height="24" rx="6" fill="#E2E8F0"/>
+  <rect x="416" y="304" width="320" height="140" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="444" y="344" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">Provider Adapters</text>
+  <rect x="444" y="366" width="120" height="26" rx="8" fill="#DBEAFE"/>
+  <rect x="576" y="366" width="120" height="26" rx="8" fill="#D1FAE5"/>
+  <rect x="444" y="402" width="120" height="26" rx="8" fill="#FEF3C7"/>
+  <rect x="576" y="402" width="120" height="26" rx="8" fill="#EDE9FE"/>
+</svg>

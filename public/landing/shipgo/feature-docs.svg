@@ -1,0 +1,24 @@
+<svg width="800" height="520" viewBox="0 0 800 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="520" rx="24" fill="#F8FAFC"/>
+  <rect x="36" y="36" width="728" height="448" rx="18" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+  <rect x="36" y="36" width="212" height="448" rx="18" fill="#F1F5F9"/>
+  <rect x="58" y="68" width="168" height="36" rx="8" fill="#FFFFFF" stroke="#CBD5E1"/>
+  <text x="74" y="91" fill="#64748B" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">Search docs (Orama)...</text>
+  <rect x="58" y="128" width="168" height="28" rx="6" fill="#DBEAFE"/>
+  <text x="70" y="147" fill="#1E40AF" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="600">Introduction</text>
+  <rect x="58" y="168" width="150" height="14" rx="4" fill="#CBD5E1"/>
+  <rect x="58" y="196" width="132" height="14" rx="4" fill="#CBD5E1"/>
+  <rect x="58" y="224" width="160" height="14" rx="4" fill="#CBD5E1"/>
+  <rect x="58" y="252" width="140" height="14" rx="4" fill="#CBD5E1"/>
+  <text x="284" y="96" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="24" font-weight="700">ShipGo Documentation</text>
+  <text x="284" y="128" fill="#64748B" font-family="ui-sans-serif, system-ui, sans-serif" font-size="14">Fumadocs MDX • Bilingual (EN / ZH) • Markdown Export API</text>
+  <rect x="284" y="160" width="440" height="108" rx="12" fill="#0F172A"/>
+  <text x="308" y="200" fill="#38BDF8" font-family="ui-monospace, monospace" font-size="14">$ pnpm db:migrate</text>
+  <text x="308" y="228" fill="#E2E8F0" font-family="ui-monospace, monospace" font-size="14">$ pnpm dev  # http://localhost:3000</text>
+  <rect x="284" y="294" width="210" height="142" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+  <text x="306" y="330" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">Copy Markdown</text>
+  <text x="306" y="356" fill="#64748B" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">/api/content/markdown</text>
+  <rect x="514" y="294" width="210" height="142" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+  <text x="536" y="330" fill="#0F172A" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600">Open in ChatGPT / Claude</text>
+  <text x="536" y="356" fill="#64748B" font-family="ui-sans-serif, system-ui, sans-serif" font-size="12">EN &amp; ZH Bilingual Sync</text>
+</svg>

@@ -1,0 +1,29 @@
+---
+title: Plausible
+description: 为 ShipGo 添加 Plausible 轻量分析
+---
+
+Plausible 是轻量、开源的分析工具，尊重用户隐私且加载迅速。
+
+## 配置
+
+1. 在 [Plausible](https://plausible.io/) 创建账号或自行托管。
+2. 在 Plausible 添加域名并复制站点域名。
+3. 添加到 `.env.local`：
+
+```dotenv
+VITE_PLAUSIBLE_DOMAIN=yourdomain.com
+```
+
+4. 重启应用。
+
+## 跟踪内容
+
+- 页面浏览与独立访客。
+- 目标完成与漏斗分析。
+- 国家、设备与浏览器分布。
+
+## 官方文档
+
+- [Plausible 文档](https://plausible.io/docs)
+- [Plausible 自托管](https://plausible.io/docs/self-hosting)
